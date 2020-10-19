@@ -1,0 +1,29 @@
+#AUTHENTICATION
+POST https://testadminapi.webdatawarehouse.com/api/token
+add body with credentials.
+
+username: victor
+password: D@taRocks4me
+
+->returns Bearer token used for calling the following APIs.
+
+#CALLING APIs
+https://testadminapi.webdatawarehouse.com/API/<name of API> fx.
+https://testadminapi.webdatawarehouse.com/API/APISources or https://testadminapi.webdatawarehouse.com/API/APISources/1
+
+When calling an API end point also include name of database in body 
+(key)db (value)devWebdatawarehouse (which is the name of the development database). 
+
+Currently we have the following endpoints: 
+urlpatterns = [
+    path('APISources', views.APISourcesListView.as_view(), name='APISourcesList'),
+    path('APISources/<int:pk>', views.APISourcesView.as_view(), name='APISources'),
+    path('APIMethods', views.APIMethodsListView.as_view(), name='APIMethodsList'),
+    path('APIMethods/<int:pk>', views.APIMethodsView.as_view(), name='APIMethods'),
+    path('APIHeaders', views.APIHeadersListView.as_view(), name='APIHeadersList'),
+    path('APIHeaders/<int:pk>', views.APIHeadersView.as_view(), name='APIHeaders'),
+    path('APIParameters', views.APIParametersListView.as_view(), name='APIParametersList'),
+    path('APIParameters/<int:pk>', views.APIParametersView.as_view(), name='APIParameters'),
+    path('APIBody', views.APIBodyListView.as_view(), name='APIBodyList'),
+    path('APIBody/<int:pk>', views.APIBodyView.as_view(), name='APIBody'),
+]
