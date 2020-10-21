@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />    
     <meta name="author" content="INSPIRO" />    
-	<meta name="description" content="Themeforest Template Polo, html template">
+    <meta name="description" content="Themeforest Template Polo, html template">
     <link rel="icon" type="image/png" href="images/favicon.png">   
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- Document title -->
@@ -30,11 +30,11 @@
                             <form action="javascript:;" method="post" id="login-form">
                                 <div class="form-group">
                                     <label class="sr-only">Username</label>
-                                    <input name="username" id="username" type="text" class="form-control" placeholder="Username">
+                                    <input name="username" id="username" type="text" class="form-control" placeholder="Username" required>
                                 </div>
                                 <div class="form-group m-b-5">
                                     <label class="sr-only">Password</label>
-                                    <input name="password" id="password" type="password" class="form-control" placeholder="Password" value="D@taRocks4me">
+                                    <input name="password" id="password" type="password" class="form-control" placeholder="Password" value="D@taRocks4me" required>
                                 </div>
                                 <div class="form-group form-inline text-left">
                                     <div class="form-check">
@@ -62,9 +62,12 @@
     <!--Plugins-->
     <script src="js/jquery.js"></script>
     <script src="js/plugins.js"></script>
+
+    <script src="plugins/validate/validate.min.js"></script>
+    <script src="plugins/validate/valildate-rules.js"></script>
     <!--Template functions-->
     <script src="js/functions.js"></script>
-    <script src="js/custom.js"></script>
+    <script src="js/login.js"></script>
 </body>
 
 </html>
