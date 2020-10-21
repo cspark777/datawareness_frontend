@@ -6,11 +6,31 @@
 */
 
 (function ($) {
-	"use strict"
+    "use strict"
 
-	var $form = $('#login-form');
+    function getOrigin(){
+        var href = window.location.href;
+        var h_arr = href.split('/');
+        var origin = "";
+        for(var i=0; i<h_arr.length-1;i++){
+            origin = origin + h_arr[i] + "/";
+        }
+
+        return origin;
+    }
+
+    function setCookie(cname, cvalue, hours) {
+        var d = new Date();
+        d.setTime(d.getTime() + (hours*60*60*1000));
+        var expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    var origin = getOrigin();
+
+    var $form = $('#login-form');
     $form.submit( function(event) {
-    	
+        
         $.ajax({
             type: 'POST',
             url: "https://testadminapi.webdatawarehouse.com/api/token",
@@ -20,22 +40,20 @@
                 //here is to get subscription part
                 var subscription = "devWebdatawarehouse";
                 
-                var url = 'main.html';
-                var form = $('<form action="' + url + '" method="post">' +
-                  '<input type="text" name="access" value="' + response["access"] + '" />' +
-                  '<input type="text" name="refresh" value="' + response["refresh"] + '" />' + 
-                  '<input type="text" name="db" value="' + subscription + '" />' +
-                  '</form>');
-                $('body').append(form);
-                form.submit();
+                setCookie("token", response["access"], 1);
+                setCookie("db", subscription);
+
+                window.location.href = origin + "main.html";
             },
             error: function (xhr, ajaxOptions, thrownError) {
-            	console.log("error");
+                if(thrownError == "Unauthorized"){
+                    alert("Login information is not correct, please check again...");
+                }
             }
-    	});
-    	
-	    event.preventDefault;
-	    return false;
-	});
+        });
+        
+        event.preventDefault;
+        return false;
+    });
 
 })(jQuery)
