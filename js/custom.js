@@ -71,10 +71,18 @@
             var api_method_name = am["APIMethodName"];
             var api_method = am["APIMethod"];
             var api_type = am["APIType"];
-            var loop_based_int_start_from = am["APIType"];
-            var loop_based_int_last = am["APIType"];
-            var enabled = am["APIType"];
-            var _delete = "delete";
+            var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
+            var loop_based_int_last = am["LoopBasedOnINTLast"];
+
+            var enabled = "";
+            if(am["Enabled"] == 1){
+                enabled = '<input type="checkbox" class="enable-btn" checked>';
+            }
+            else{
+                enabled = '<input type="checkbox" class="enable-btn">';
+            }
+            
+            var _delete = '<a href="javascript:;" class="delete-btn">delete</a>';
 
             maintable.row.add([
                 api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, _delete
@@ -82,7 +90,9 @@
         }
     }
 
-    var maintable = $('#maintable').DataTable();
+    var maintable = $('#maintable').DataTable({
+        "scrollX": true,
+    });
 
     var apisources = [
         {
