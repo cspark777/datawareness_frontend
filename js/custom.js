@@ -65,12 +65,26 @@
     }
 
     function init_maintable(maintable, apisources, apimethods){
+        for(var i=0; i<apimethods.length; i++){
+            var am = apimethods[i];
+            var api_source = am["APISource"];
+            var api_method_name = am["APIMethodName"];
+            var api_method = am["APIMethod"];
+            var api_type = am["APIType"];
+            var loop_based_int_start_from = am["APIType"];
+            var loop_based_int_last = am["APIType"];
+            var enabled = am["APIType"];
+            var _delete = "delete";
 
+            maintable.row.add([
+                api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, _delete
+                ]).draw( false );;
+        }
     }
 
     var maintable = $('#maintable').DataTable();
 
-    apisources = [
+    var apisources = [
         {
             "ID": 1,
             "APISource": "economic",
@@ -153,7 +167,7 @@
         }
     ];
 
-    apimethods = [
+    var apimethods = [
         {
             "ID": 6,
             "APISource": "cvr",
