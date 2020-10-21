@@ -38,7 +38,7 @@
     var db = getCookie("db");
 
     if(token == ""){
-        window.location.href = origin + "login.html";
+        //window.location.href = origin + "login.html";
     }
 
 
@@ -64,11 +64,12 @@
         });
     }
 
+
     function init_maintable(maintable, apisources, apimethods){
         for(var i=0; i<apimethods.length; i++){
             var am = apimethods[i];
-            var api_source = am["APISource"];
-            var api_method_name = am["APIMethodName"];
+            
+            var api_source = '<a class="aipsource-edit-btn" href="javascript:;" data-source="' + am["APISource"] + '">' + am["APISource"] + '</a>';            var api_method_name = am["APIMethodName"];
             var api_method = am["APIMethod"];
             var api_type = am["APIType"];
             var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
@@ -92,6 +93,26 @@
 
     var maintable = $('#maintable').DataTable({
         "scrollX": true,
+    });
+
+    $(document).on('click', "#maintable tbody a", function(e){
+        var target = $(e.currentTarget);            
+        var btn_class = $(e.currentTarget).attr("class");
+            
+        if(btn_class == "aipsource-edit-btn"){
+            var as = {
+                "ID": 1,
+                "APISource": "economic",
+                "APIEndpoint": "https://restapi.e-conomic.com/",
+                "OutputIsXML": 0,
+                "Authentication": "[{\"authenticationType\":\"header\",\"credentials\":{}}]",
+                "SortOrder": 5,
+                "Enabled": 42,
+                "DateCreated": "2020-06-15T12:44:46.997000Z"
+            };
+
+            $("#edit-source-modal").modal("show");
+        }
     });
 
     var apisources = [
