@@ -34,21 +34,7 @@ table > thead td, th{
 	background-color: #ccc !important; 
 }
 
-.col-source{
-	width: 100px !important;
-}
-.col-methodname{
-	width: 100px !important;
-}
-.col-method{
-	width: 100px !important;
-}
-.col-type{
-	width: 100px !important;
-}
-.col-start{
-	width: 100px !important;
-}
-.col-last{
-	width: 100px !important;
+table.dataTable tbody td {
+    word-break: break-word;
+    vertical-align: top;
 }

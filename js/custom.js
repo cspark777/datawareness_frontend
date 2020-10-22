@@ -85,22 +85,28 @@
             
             var _delete = '<a href="javascript:;" class="delete-btn">delete</a>';
 
-            var rowNode = maintable.row.add([
+            maintable.row.add([
                 api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, _delete
-                ]).draw().node();
+                ]).draw( false );
         }
-
+        maintable.columns.adjust().draw();
     }
 
-    var maintable = $('#maintable').removeAttr('width').DataTable({
-        "scrollX": true,
-        autoWidth: false, //step 1
-        columnDefs: [
-           { width: '300px', targets: 0 }, //step 2, column 1 out of 4
-           { width: '300px', targets: 1 }, //step 2, column 2 out of 4
-           { width: '300px', targets: 2 }  //step 2, column 3 out of 4
-        ], 
-        "bAutoWidth": false
+    var maintable = $('#maintable').DataTable({
+        
+        "scrollX":        true,        
+        //"paging":         false,   
+        //"autoWidth": false,
+        "columns" : [
+            { width : '50px' },
+            { width : '100px' },
+            { width : '300px' },
+            { width : '100px' },        
+            { width : '100px' },
+            { width : '100px' },
+            { width : '30px' },
+            { width : '30px' }
+        ]      
     });
 
     var esm_auth_table = $('#esm-auth-table').DataTable({
@@ -109,7 +115,7 @@
         "dom": 't',                
     });
 
-    $(document).on('click', "#maintable tbody a", function(e){
+    $(document).on('click', "#maintable_wrapper tbody a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
