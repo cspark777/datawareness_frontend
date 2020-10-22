@@ -85,14 +85,28 @@
             
             var _delete = '<a href="javascript:;" class="delete-btn">delete</a>';
 
-            maintable.row.add([
+            var rowNode = maintable.row.add([
                 api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, _delete
-                ]).draw( false );;
+                ]).draw().node();
         }
+
     }
 
-    var maintable = $('#maintable').DataTable({
+    var maintable = $('#maintable').removeAttr('width').DataTable({
         "scrollX": true,
+        autoWidth: false, //step 1
+        columnDefs: [
+           { width: '300px', targets: 0 }, //step 2, column 1 out of 4
+           { width: '300px', targets: 1 }, //step 2, column 2 out of 4
+           { width: '300px', targets: 2 }  //step 2, column 3 out of 4
+        ], 
+        "bAutoWidth": false
+    });
+
+    var esm_auth_table = $('#esm-auth-table').DataTable({
+        "scrollX": true,
+        "scrollY": true,
+        "dom": 't',                
     });
 
     $(document).on('click', "#maintable tbody a", function(e){
@@ -122,15 +136,25 @@
             }
 
             var auth = JSON.parse(as["Authentication"]);
+            esm_auth_table.clear();
+            
 
-            var esm_auth_table = $('#esm-auth-table').DataTable({
-                "scrollX": true,
-                "scrollY": true,
-                
-            });
+            for (var k in auth[0]["credentials"]){
+                if (typeof auth[0]["credentials"][k] !== 'function') {
+                    esm_auth_table.row.add([
+                        k, auth[0]["credentials"][k], 
+                        '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                        ]).draw(true);         
+                }
+            }
+            
 
             $("#edit-source-modal").modal("show");
         }
+    });
+
+    $('#edit-source-modal').on('shown.bs.modal', function(){        
+        esm_auth_table.columns.adjust().draw();
     });
 
     var apisources = [
