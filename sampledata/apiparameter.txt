@@ -1,0 +1,35 @@
+[
+{
+            "ID": 2,
+            "APISource": "timelog",
+            "APIMethod": "GetProjectsRaw",
+            "Parameter": "projectID",
+            "DefaultValue": "0",
+            "SortOrder": 1,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2019-04-09T12:25:34.200000Z"
+        },
+        {
+            "ID": 3,
+            "APISource": "timelog",
+            "APIMethod": "GetProjectsRaw",
+            "Parameter": "status",
+            "DefaultValue": "-2",
+            "SortOrder": 2,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2019-04-09T12:25:34.200000Z"
+        },
+        {
+            "ID": 4,
+            "APISource": "timelog",
+            "APIMethod": "GetProjectsRaw",
+            "Parameter": "customerID",
+            "DefaultValue": "0",
+            "SortOrder": 3,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2019-04-09T12:25:34.200000Z"
+        }
+        ]

@@ -1,0 +1,11 @@
+        {
+            "ID": 2,
+            "APISource": "cvr",
+            "APIEndpoint": "http://distribution.virk.dk/cvr-permanent/virksomhed/",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"basic\",\"credentials\":{\"UserId\":\"Datawareness_CVR_\",\"Password\":\"123abc\"}}]",
+            "SortOrder": 10,
+            "Enabled": 42,
+            "DateCreated": "2020-06-15T12:44:47.043000Z"
+        }
+        

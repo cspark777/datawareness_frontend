@@ -1,0 +1,82 @@
+[
+        {
+            "ID": 1,
+            "APISource": "economic",
+            "APIEndpoint": "https://restapi.e-conomic.com/",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"header\",\"credentials\":{}}]",
+            "SortOrder": 5,
+            "Enabled": 42,
+            "DateCreated": "2020-06-15T12:44:46.997000Z"
+        },
+        {
+            "ID": 2,
+            "APISource": "cvr",
+            "APIEndpoint": "http://distribution.virk.dk/cvr-permanent/virksomhed/",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"basic\",\"credentials\":{\"UserId\":\"Datawareness_CVR_\",\"Password\":\"123abc\"}}]",
+            "SortOrder": 10,
+            "Enabled": 42,
+            "DateCreated": "2020-06-15T12:44:47.043000Z"
+        },
+        {
+            "ID": 3,
+            "APISource": "googlesheets",
+            "APIEndpoint": "",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"googlesheets\",\"credentials\":{\"token\": \"-o-VA7K6HyXF2frQ26BUxynjLGwYqu_d2On0Sj_0\", \"refresh_token\": \"A3_E0Yfdqj9xNPSpmvCPU\", \"token_uri\": \"https://oauth2.googleapis.com/token\", \"client_id\": \"0i3v8r2c9.apps.googleusercontent.com\",",
+            "SortOrder": 15,
+            "Enabled": 0,
+            "DateCreated": "2020-09-05T03:49:18.370000Z"
+        },
+        {
+            "ID": 4,
+            "APISource": "timelog",
+            "APIEndpoint": "https://app1.timelog.com/datawareness/service.asmx/",
+            "OutputIsXML": 1,
+            "Authentication": "[{\"authenticationType\":\"parameter\",\"credentials\":{}}]",
+            "SortOrder": 20,
+            "Enabled": 42,
+            "DateCreated": "2020-09-05T04:13:06.950000Z"
+        },
+        {
+            "ID": 5,
+            "APISource": "upodi",
+            "APIEndpoint": "https://api.upodi.io/v3/",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"bearer\",\"credentials\":{\"Bearer\":\"xxx\"}}]",
+            "SortOrder": 25,
+            "Enabled": 42,
+            "DateCreated": "2020-09-05T04:29:17.893000Z"
+        },
+        {
+            "ID": 6,
+            "APISource": "upodi_odata",
+            "APIEndpoint": "https://odataprovider.azurewebsites.net/api/16febdd9-7a6d-438f-b63c-61861d96ebfb/",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"no auth\",\"credentials\":{}}]",
+            "SortOrder": 30,
+            "Enabled": 42,
+            "DateCreated": "2020-09-05T04:29:39.070000Z"
+        },
+        {
+            "ID": 7,
+            "APISource": "wootric",
+            "APIEndpoint": "https://api.wootric.com/",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"session bearer\",\"credentials\":{\"grant_type\":\"password\",\"username\":\"pi@testing.dk\",\"password\":\"123mnb\", \"API method\":\"post\", \"url\":\"https://api.wootric.com/oauth/token\"}}]",
+            "SortOrder": 17,
+            "Enabled": 0,
+            "DateCreated": "2020-09-07T12:44:56.093000Z"
+        },
+        {
+            "ID": 9,
+            "APISource": "bc",
+            "APIEndpoint": "https://api.businesscentral.dynamics.com/v2.0/",
+            "OutputIsXML": 0,
+            "Authentication": "[{\"authenticationType\":\"basic\",\"credentials\":{\"UserId\":\"myuser\",\"Password\":\"asdfasdf\"}}]",
+            "SortOrder": 1,
+            "Enabled": 1,
+            "DateCreated": "2020-09-04T08:19:32.110000Z"
+        }
+    ]

@@ -1,0 +1,32 @@
+[
+{
+    "ID": 2,
+    "APISource": "economic",
+    "Header": "Content-Type",
+    "Value": "application/json",
+    "SortOrder": 3,
+    "APISample": 2,
+    "Enabled": 1,
+    "DateCreated": "2020-09-05T04:07:24.883000Z"
+},
+{
+    "ID": 3,
+    "APISource": "economic",
+    "Header": "X-AppSecretToken",
+    "Value": "123",
+    "SortOrder": 1,
+    "APISample": 2,
+    "Enabled": 1,
+    "DateCreated": "2020-09-05T04:07:30.220000Z"
+},
+{
+    "ID": 4,
+    "APISource": "economic",
+    "Header": "X-AgreementGrantToken",
+    "Value": "456",
+    "SortOrder": 2,
+    "APISample": 2,
+    "Enabled": 1,
+    "DateCreated": "2020-09-05T04:07:31.653000Z"
+}
+]
