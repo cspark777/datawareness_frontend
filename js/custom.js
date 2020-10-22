@@ -101,14 +101,14 @@
             
         if(btn_class == "aipsource-edit-btn"){
             var as = {
-                "ID": 1,
-                "APISource": "economic",
-                "APIEndpoint": "https://restapi.e-conomic.com/",
+                "ID": 2,
+                "APISource": "cvr",
+                "APIEndpoint": "http://distribution.virk.dk/cvr-permanent/virksomhed/",
                 "OutputIsXML": 0,
-                "Authentication": "[{\"authenticationType\":\"header\",\"credentials\":{}}]",
-                "SortOrder": 5,
+                "Authentication": "[{\"authenticationType\":\"basic\",\"credentials\":{\"UserId\":\"Datawareness_CVR_\",\"Password\":\"123abc\"}}]",
+                "SortOrder": 10,
                 "Enabled": 42,
-                "DateCreated": "2020-06-15T12:44:46.997000Z"
+                "DateCreated": "2020-06-15T12:44:47.043000Z"
             };
 
             $("#esm-title").text("Edit " + as["APISource"]);
@@ -120,6 +120,15 @@
             else{
                 $("#esm-outputxml").prop("checked", true);
             }
+
+            var auth = JSON.parse(as["Authentication"]);
+
+            var esm_auth_table = $('#esm-auth-table').DataTable({
+                "scrollX": true,
+                "scrollY": true,
+                
+            });
+
             $("#edit-source-modal").modal("show");
         }
     });
