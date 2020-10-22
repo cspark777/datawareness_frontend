@@ -111,6 +111,15 @@
                 "DateCreated": "2020-06-15T12:44:46.997000Z"
             };
 
+            $("#esm-title").text("Edit " + as["APISource"]);
+            $("#esm-endpoint").val(as["APIEndpoint"]);
+
+            if(as["OutputIsXML"] == 0){
+                $("#esm-outputxml").prop("checked", false);
+            }
+            else{
+                $("#esm-outputxml").prop("checked", true);
+            }
             $("#edit-source-modal").modal("show");
         }
     });

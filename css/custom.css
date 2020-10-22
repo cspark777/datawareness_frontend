@@ -19,3 +19,13 @@ section{
 .icon-settings{
 	font-size: 24px;
 }
+
+@media (min-width: 576px){
+	.modal-dialog {
+	    max-width: 700px;
+	    margin: 1.75rem auto;    
+	}
+	.modal-body{
+		padding: 30px;
+	}	
+}

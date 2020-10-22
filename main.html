@@ -38,11 +38,34 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-5">
                             <div class="col-md-12">
                                 <div class="form-check">                              
-                                    <input class="form-check-input" id="esm-outputxml" type="checkbox"><label class="form-check-label" for="esm-outputxml">Check me out</label>
+                                    <input class="form-check-input" id="esm-outputxml" type="checkbox"><label class="form-check-label" for="esm-outputxml">Output is XML</label>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="esm-auth-type">Authentication Type</label>
+                                    <select class="form-control" id="esm-auth-type">
+                                        <option value="header">header</option>
+                                        <option value="aaa">aaa</option>
+                                        <option value="bbb">bbb</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <table id="esm-auth-type-table" class="table table-bordered table-hover" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <td>Header</td>
+                                            <td>Value</td>
+                                            <td>Delete</td>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
                         </div>
                     </div>
