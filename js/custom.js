@@ -39,7 +39,13 @@
 
     if(token == ""){
         //window.location.href = origin + "login.html";
+        db = "devWebdatawarehouse";
     }
+
+    // ===== init part
+
+    $("#subscription-name").html("<h4>" + db + "</h4>");
+    // =====
 
 
     function getGetDataFromAPI(url, token, db, callback){
@@ -115,6 +121,18 @@
         "dom": 't',                
     });
 
+    var ehm_table = $('#ehm-table').DataTable({
+        "scrollX": true,
+        "scrollY": true,
+        "dom": 't',                
+    });
+
+    var epm_table = $('#epm-table').DataTable({
+        "scrollX": true,
+        "scrollY": true,
+        "dom": 't',                
+    });
+
     $(document).on('click', "#maintable_wrapper tbody a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
@@ -141,9 +159,15 @@
                 $("#esm-outputxml").prop("checked", true);
             }
 
+            if(as["Enabled"] == 0){
+                $("#esm-enabled").prop("checked", false);
+            }
+            else{
+                $("#esm-enabled").prop("checked", true);
+            }
+
             var auth = JSON.parse(as["Authentication"]);
-            esm_auth_table.clear();
-            
+            esm_auth_table.clear();            
 
             for (var k in auth[0]["credentials"]){
                 if (typeof auth[0]["credentials"][k] !== 'function') {
@@ -162,6 +186,43 @@
     $('#edit-source-modal').on('shown.bs.modal', function(){        
         esm_auth_table.columns.adjust().draw();
     });
+
+    $(document).on('click', "#edit-source-modal a", function(e){
+        var target = $(e.currentTarget);            
+        var btn_class = $(e.currentTarget).attr("class");
+            
+        if(btn_class == "esm-edit-header-btn"){
+            
+            $("#ehm-title").text("Edit " + ah[0]["APISource"]);
+            ehm_table.clear();
+            for (var i=0; i<ah.length; i++){                
+                ehm_table.row.add([
+                    ah[i]["Header"], ah[i]["Value"], 
+                    '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                    ]).draw(true);                         
+            }
+            $("#edit-header-modal").modal("show");
+        }
+        else if(btn_class == "esm-edit-parameter-btn"){
+            
+            $("#epm-title").text("Edit " + ap[0]["APISource"]);
+            epm_table.clear();
+            for (var i=0; i<ap.length; i++){                
+                epm_table.row.add([
+                    ap[i]["APIMethod"], ap[i]["Parameter"], ap[i]["DefaultValue"], 
+                    '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                    ]).draw(true);                         
+            }
+            $("#edit-parameter-modal").modal("show");
+        }
+    });
+    $('#edit-header-modal').on('shown.bs.modal', function(){        
+        ehm_table.columns.adjust().draw();
+    });
+    $('#edit-parameter-modal').on('shown.bs.modal', function(){        
+        epm_table.columns.adjust().draw();
+    });
+    
 
     var apisources = [
         {
@@ -1148,6 +1209,65 @@
             "DateCreated": "2020-10-04T19:50:06.610000Z"
         }
     ]
+
+    var ah = [
+        {
+            "ID": 1,
+            "APISource": "cvr",
+            "Header": "Content-Type",
+            "Value": "application/json",
+            "SortOrder": 1,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2020-09-05T04:04:42.817000Z"
+        },
+        {
+            "ID": 4,
+            "APISource": "economic",
+            "Header": "X-AgreementGrantToken",
+            "Value": "456",
+            "SortOrder": 2,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2020-09-05T04:07:31.653000Z"
+        }
+    ];
+
+    var ap = [
+        {
+            "ID": 2,
+            "APISource": "timelog",
+            "APIMethod": "GetProjectsRaw",
+            "Parameter": "projectID",
+            "DefaultValue": "0",
+            "SortOrder": 1,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2019-04-09T12:25:34.200000Z"
+        },
+        {
+            "ID": 3,
+            "APISource": "timelog",
+            "APIMethod": "GetProjectsRaw",
+            "Parameter": "status",
+            "DefaultValue": "-2",
+            "SortOrder": 2,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2019-04-09T12:25:34.200000Z"
+        },
+        {
+            "ID": 4,
+            "APISource": "timelog",
+            "APIMethod": "GetProjectsRaw",
+            "Parameter": "customerID",
+            "DefaultValue": "0",
+            "SortOrder": 3,
+            "APISample": 2,
+            "Enabled": 1,
+            "DateCreated": "2019-04-09T12:25:34.200000Z"
+        }
+    ];
 
     init_maintable(maintable, apisources, apimethods);    
 

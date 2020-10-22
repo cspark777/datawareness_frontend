@@ -21,7 +21,7 @@
     <!-- Body Inner -->
     <div class="body-inner">
 
-        <!--Modal -->
+        <!--edit APISource Modal -->
         <div class="modal fade" id="edit-source-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -45,7 +45,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-5">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="esm-auth-type">Authentication Type</label>
@@ -68,6 +68,18 @@
                                 </table>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check">                              
+                                    <input class="form-check-input" id="esm-enabled" type="checkbox"><label class="form-check-label" for="esm-enabled">Enabled</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8" style="text-align: right;">
+                                <a href="javascript:;" class="esm-edit-header-btn">Edit headers</a>
+                                <a href="javascript:;" class="esm-edit-parameter-btn">Edit parameters</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
@@ -78,7 +90,7 @@
         </div>
         <!-- end: Modal -->
 
-        <!--Modal -->
+        <!--edit APIMethod Modal -->
         <div class="modal fade" id="edit-method-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -104,13 +116,78 @@
         </div>
         <!-- end: Modal -->
 
+        <!--edit APIHeader Modal -->
+        <div class="modal fade" id="edit-header-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="ehm-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="ehm-table" class="table table-bordered table-hover" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <td>Header</td>
+                                            <td>Value</td>
+                                            <td>Delete</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end: Modal -->
+
+        <!--edit APIParameter Modal -->
+        <div class="modal fade" id="edit-parameter-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="epm-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="epm-table" class="table table-bordered table-hover" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <td>API Method</td>
+                                            <td>Header</td>
+                                            <td>Value</td>
+                                            <td>Delete</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end: Modal -->
+
         <!-- Page Content -->
         <section id="page-content" class="no-sidebar">
             <div class="container">
                 <!-- DataTable -->
                 <div class="row mb-3">
-                    <div class="col-lg-6">
-                        <h4>Advanced Search</h4>
+                    <div class="col-lg-6" id="subscription-name">
+                        <h4></h4>
                     </div>
                     <div class="col-lg-6 text-right">                        
                         <div class="p-dropdown ml-3 float-right">
