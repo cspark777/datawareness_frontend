@@ -26,6 +26,40 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h4 class="modal-title" id="esm-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="esm-endpoint">API Endpoint</label>
+                                    <input type="text" class="form-control" id="esm-endpoint" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-check">                              
+                                    <input class="form-check-input" id="esm-outputxml" type="checkbox"><label class="form-check-label" for="esm-outputxml">Check me out</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end: Modal -->
+
+        <!--Modal -->
+        <div class="modal fade" id="edit-method-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
                         <h4 class="modal-title" id="modal-label">Medium Modal</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
