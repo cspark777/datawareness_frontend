@@ -120,6 +120,12 @@
         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"      
     });
     $("div.toolbar").html('<a class="btn add-method-btn">Add</a>');
+    $(document.querySelector('.add-method-btn')).on('click', function(e){
+        $("#edit-method-modal").modal("show");
+    });
+
+    
+
 
     var esm_auth_table = $('#esm-auth-table').DataTable({
         "scrollX": true,

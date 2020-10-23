@@ -95,21 +95,91 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="modal-label">Medium Modal</h4>
+                        <h4 class="modal-title" id="emm-title">Add API Method</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="emm-api-source">API Source</label>
+                                    <select class="form-control" id="emm-api-source">
+                                        <option value="header">header</option>
+                                        <option value="aaa">aaa</option>
+                                        <option value="bbb">bbb</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="javascript:;" class="emm-add-source-btn">Add API Source</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="emm-api-method-name">API Method Name</label>
+                                    <select class="form-control" id="emm-api-method-name">
+                                        <option value="header">header</option>
+                                        <option value="aaa">aaa</option>
+                                        <option value="bbb">bbb</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="javascript:;" class="emm-add-method-name-btn">Add API Method Name</a>
+                            </div>
+                        </div>
+                        <div class="row mb-5">
                             <div class="col-md-12">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laudantium atque architecto
-                                    quae ullam rem labore veritatis temporibus asperiores, ad eaque odit commodi
-                                    inventore dolore perspiciatis, nam dicta est eos id quod excepturi.</p>
+                                <div class="form-group">
+                                    <label for="emm-api-method">API Method</label>
+                                    <input type="text" class="form-control" id="emm-api-method">
+                                </div>
+                            </div>                            
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="emm-api-load-type">API Method Name</label>
+                                    <select class="form-control" id="emm-api-load-type">
+                                        <option value="header">LoopBasedInt</option>
+                                        <option value="aaa">aaa</option>
+                                        <option value="bbb">bbb</option>
+                                    </select>
+                                </div>
+                            </div>                            
+                        </div>
+
+                        <div class="row mb-5" id="loopbasedint-relevant-div">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="emm-start-from">Int Start From</label>
+                                    <input type="text" class="form-control" id="emm-start-from" value="0">
+                                </div>
+                            </div>  
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="emm-last">Int Last/label>
+                                    <input type="text" class="form-control" id="emm-last" value="0">
+                                </div>
+                            </div>                                                      
+                        </div>
+
+                        <div class="row mb-5">
+                            <div class="col-md-6">
+                                <div class="form-check">                              
+                                    <input class="form-check-input" id="emm-enabled" type="checkbox"><label class="form-check-label" for="emm-enabled">Enabled</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="javascript:;" class="emm-edit-parameter-btn">Edit Parameters</a>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-b">Save Changes</button>
+                        <button type="button" class="btn btn-b">Add</button>
                     </div>
                 </div>
             </div>
