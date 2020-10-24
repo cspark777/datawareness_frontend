@@ -32,10 +32,14 @@ section{
 
 	#add-method-name-modal .modal-dialog {
 	    max-width: 500px;
-	    margin-top: 3rem;    	    
+	    margin-top: 5rem;    	    
 	}
 	#edit-method-modal .modal-dialog {
 	    max-width: 700px;	    
+	}
+
+	#edit-parameter-modal .modal-dialog {
+	    margin-top: 5rem; 	    
 	}
 
 }
