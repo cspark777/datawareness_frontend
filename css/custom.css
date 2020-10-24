@@ -32,9 +32,12 @@ section{
 
 	#add-method-name-modal .modal-dialog {
 	    max-width: 500px;
-	    margin-top: 3rem;    
-	    margin-left: 5rem !important;
+	    margin-top: 3rem;    	    
 	}
+	#edit-method-modal .modal-dialog {
+	    max-width: 700px;	    
+	}
+
 }
 
 table > thead td, th{

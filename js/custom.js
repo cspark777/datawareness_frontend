@@ -132,13 +132,22 @@
             open_add_apisource_modal("sampledata/apisource.txt", token, db);
         }
         else if(btn_class == "emm-add-method-name-btn"){
-            $("#amnm-name").val('');
+            $("#amnm-name").val('');            
+            
             $("#add-method-name-modal").modal("show");
+
+            var left = document.body.clientWidth/2 - 150;
+            var left_str = left + 'px';
+            $("#add-method-name-modal .modal-dialog").css("margin-left", left_str);
         }
-    });
-
-
-    
+        else if(btn_class == "emm-edit-parameter-btn"){
+            open_edit_parameter_modal("sampledata/apiparameter.txt", token, db);
+            
+            var left = document.body.clientWidth/2 - 150;
+            var left_str = left + 'px';
+            $("#edit-parameter-modal .modal-dialog").css("margin-left", left_str);
+        }
+    });   
 
 
     var esm_auth_table = $('#esm-auth-table').DataTable({
@@ -194,6 +203,21 @@
         });
     }
 
+    function open_edit_parameter_modal(url, token, db){
+        getGetDataFromAPI(url, token, db, function(response){
+            var ap = JSON.parse(response);
+            $("#epm-title").text("Edit " + ap[0]["APISource"] + " parameters");
+            epm_table.clear();
+            for (var i=0; i<ap.length; i++){                
+                epm_table.row.add([
+                    ap[i]["APIMethod"], ap[i]["Parameter"], ap[i]["DefaultValue"], 
+                    '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                    ]).draw(true);                         
+            }
+            $("#edit-parameter-modal").modal("show");
+        });   
+    }
+
     $(document).on('click', "#maintable_wrapper tbody a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
@@ -227,18 +251,7 @@
             
         }
         else if(btn_class == "esm-edit-parameter-btn"){
-            getGetDataFromAPI("sampledata/apiparameter.txt", token, db, function(response){
-                var ap = JSON.parse(response);
-                $("#epm-title").text("Edit " + ap[0]["APISource"] + " parameters");
-                epm_table.clear();
-                for (var i=0; i<ap.length; i++){                
-                    epm_table.row.add([
-                        ap[i]["APIMethod"], ap[i]["Parameter"], ap[i]["DefaultValue"], 
-                        '<a href="javascript:;" class="delete-btn"> Delete </a>'
-                        ]).draw(true);                         
-                }
-                $("#edit-parameter-modal").modal("show");
-            });           
+            open_edit_parameter_modal("sampledata/apiparameter.txt", token, db);
         }
     });
     $('#edit-header-modal').on('shown.bs.modal', function(){        
