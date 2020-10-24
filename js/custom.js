@@ -131,6 +131,10 @@
         if(btn_class == "emm-add-source-btn"){
             open_add_apisource_modal("sampledata/apisource.txt", token, db);
         }
+        else if(btn_class == "emm-add-method-name-btn"){
+            $("#amnm-name").val('');
+            $("#add-method-name-modal").modal("show");
+        }
     });
 
 

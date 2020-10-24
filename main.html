@@ -54,7 +54,7 @@
                                         <option value="aaa">aaa</option>
                                         <option value="bbb">bbb</option>
                                     </select>
-                                </div>
+                                </div> 
                             </div>
                             <div class="col-md-6 btn-div">
                                 <a href="javascript:;" class="emm-add-method-name-btn">Add API Method Name</a>
@@ -247,6 +247,33 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-b">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end: Modal -->
+
+        <!--add APIMethod Name Modal -->
+        <div class="modal fade" id="add-method-name-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="amnm-title">Add API Method Name</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="amnm-name">API Method Name ( has to be unique for this API Source ) </label>
+                                    <input type="text" class="form-control" id="amnm-name" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b">Add</button>
                     </div>
                 </div>
             </div>

@@ -29,6 +29,12 @@ section{
 	.modal-body{
 		padding: 30px;
 	}	
+
+	#add-method-name-modal .modal-dialog {
+	    max-width: 500px;
+	    margin-top: 3rem;    
+	    margin-left: 5rem !important;
+	}
 }
 
 table > thead td, th{
