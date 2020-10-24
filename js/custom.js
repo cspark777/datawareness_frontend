@@ -124,6 +124,16 @@
         $("#edit-method-modal").modal("show");
     });
 
+    $(document).on('click', "#edit-method-modal a", function(e){
+        var target = $(e.currentTarget);            
+        var btn_class = $(e.currentTarget).attr("class");
+            
+        if(btn_class == "emm-add-source-btn"){
+            open_add_apisource_modal("sampledata/apisource.txt", token, db);
+        }
+    });
+
+
     
 
 
@@ -145,43 +155,47 @@
         "dom": 't',                
     });
 
+    function open_add_apisource_modal(url, token, db){
+        getGetDataFromAPI(url, token, db, function(response){
+            var as = JSON.parse(response);
+            $("#esm-title").text("Edit " + as["APISource"]);
+            $("#esm-endpoint").val(as["APIEndpoint"]);
+
+            if(as["OutputIsXML"] == 0){
+                $("#esm-outputxml").prop("checked", false);
+            }
+            else{
+                $("#esm-outputxml").prop("checked", true);
+            }
+
+            if(as["Enabled"] == 0){
+                $("#esm-enabled").prop("checked", false);
+            }
+            else{
+                $("#esm-enabled").prop("checked", true);
+            }
+
+            var auth = JSON.parse(as["Authentication"]);
+            esm_auth_table.clear();            
+
+            for (var k in auth[0]["credentials"]){
+                if (typeof auth[0]["credentials"][k] !== 'function') {
+                    esm_auth_table.row.add([
+                        k, auth[0]["credentials"][k], 
+                        '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                        ]).draw(true);         
+                }
+            }                
+            $("#edit-source-modal").modal("show");
+        });
+    }
+
     $(document).on('click', "#maintable_wrapper tbody a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
         if(btn_class == "aipsource-edit-btn"){
-            getGetDataFromAPI("sampledata/apisource.txt", token, db, function(response){
-                var as = JSON.parse(response);
-                $("#esm-title").text("Edit " + as["APISource"]);
-                $("#esm-endpoint").val(as["APIEndpoint"]);
-
-                if(as["OutputIsXML"] == 0){
-                    $("#esm-outputxml").prop("checked", false);
-                }
-                else{
-                    $("#esm-outputxml").prop("checked", true);
-                }
-
-                if(as["Enabled"] == 0){
-                    $("#esm-enabled").prop("checked", false);
-                }
-                else{
-                    $("#esm-enabled").prop("checked", true);
-                }
-
-                var auth = JSON.parse(as["Authentication"]);
-                esm_auth_table.clear();            
-
-                for (var k in auth[0]["credentials"]){
-                    if (typeof auth[0]["credentials"][k] !== 'function') {
-                        esm_auth_table.row.add([
-                            k, auth[0]["credentials"][k], 
-                            '<a href="javascript:;" class="delete-btn"> Delete </a>'
-                            ]).draw(true);         
-                    }
-                }                
-                $("#edit-source-modal").modal("show");
-            });
+            open_add_apisource_modal("sampledata/apisource.txt", token, db);
         }
     });
 
