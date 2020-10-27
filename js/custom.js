@@ -48,20 +48,13 @@
     // =====
 
     function getGetDataFromAPI(url, token, db, callback){
-        var form = new FormData();
-        form.append("db", db);
-
+        var _url = url + "?subscription=" + db;
         var settings = {
-            "url": url,
+            "url": _url,
             "method": "GET",
             "timeout": 0,
-            "headers": {
-                "Authorization": "Bearer " + token
+            "headers": {"Authorization": "Bearer " + token
             },
-            "processData": false,
-            "mimeType": "multipart/form-data",
-            "contentType": false,
-            "data": form
         };
 
         $.ajax(settings).done(function (response) {            
@@ -73,7 +66,9 @@
 
 
     function init_maintable(){
-        getGetDataFromAPI("sampledata/apimethods.txt", token, db, function(response){
+        //getGetDataFromAPI("https://testadminapi.webdatawarehouse.com/api/APISources", token, db, function(response){
+        //getGetDataFromAPI("sampledata/apimethods.txt", token, db, function(response){
+        getGetDataFromAPI("https://testadminapi.webdatawarehouse.com/api/APIMethods", token, db, function(response){
             var apimethods = JSON.parse(response);
             for(var i=0; i<apimethods.length; i++){
                 var am = apimethods[i];
