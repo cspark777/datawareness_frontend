@@ -10,6 +10,7 @@
 
     var URL_API_METHODS = "https://testadminapi.webdatawarehouse.com/api/APIMethods";
     var URL_API_SOURCES = "https://testadminapi.webdatawarehouse.com/api/APISources";
+    var URL_API_PARAMETERS = "https://testadminapi.webdatawarehouse.com/api/APIParameters";
 
     function block_ui(){
         /*
@@ -145,9 +146,29 @@
         getGetDataFromAPI(URL_API_METHODS, token, db, function(response){
             var api_methods = response;
 
+            //remove duplicated method names
+            var api_method_names = [];
+            for(var i=0; i<api_methods.length; i++){
+                if(api_method_names.indexOf(api_methods[i].APIMethodName) == -1){
+                    api_method_names.push(api_methods[i].APIMethodName);
+                }
+            }
+
             getGetDataFromAPI(URL_API_SOURCES, token, db, function(response){
                 var api_sources = response;
 
+                $("#emm-api-source").select2("destroy");
+                for(var i=0; i<api_sources.length; i++){
+                    $("#emm-api-source").append("<option value='"+ api_sources[i].id +"'>"+ api_sources[i].APISource +"</option>");                      
+                }
+                $("#emm-api-source").select2({tags: false});
+
+                $("#emm-api-method-name").select2("destroy");
+                for(var i=0; i<api_method_names.length; i++){
+                    $("#emm-api-method-name").append("<option value='"+ i +"'>"+ api_method_names[i] +"</option>");                           
+                }
+                $("#emm-api-method-name").select2({tags: true});
+                
             });
         });
 
@@ -171,7 +192,16 @@
             $("#add-method-name-modal .modal-dialog").css("margin-left", left_str);
         }
         else if(btn_class == "emm-edit-parameter-btn"){
-            open_edit_parameter_modal("sampledata/apiparameter.txt", token, db);
+            var esm_apisource_id = $("#esm_apisource_id").val();
+            if(esm_apisource_id == ""){
+                //new
+                epm_table.clear();
+                $("#edit-parameter-modal").modal("show");
+            }
+            else{
+                open_edit_parameter_modal("sampledata/apiparameter.txt", token, db);    
+            }
+            
             
             var left = document.body.clientWidth/2 - 150;
             var left_str = left + 'px';
@@ -203,10 +233,24 @@
     $("#emm-api-load-type").select2({tags: false});
 
     function open_add_apisource_modal(url, token, db){
+        block_ui();        
+        $("#esm_apisource_id").val("");
+        $("#esm-title").text("Add APISource");
+        $("#esm-endpoint").val("");   
+        $("#esm-outputxml").prop("checked", false);
+        $("#esm-enabled").prop("checked", false);
+        esm_auth_table.clear();  
+
+        unblock_ui();      
+        $("#edit-source-modal").modal("show"); 
+    }
+
+    function open_edit_apisource_modal(url, token, db){
         block_ui();
         getGetDataFromAPI(url, token, db, function(response){
             //var as = JSON.parse(response);
             var as = response;
+            $("#esm_apisource_id").val(as["ID"]);
             $("#esm-title").text("Edit " + as["APISource"]);
             $("#esm-endpoint").val(as["APIEndpoint"]);
 
@@ -262,7 +306,7 @@
         if(btn_class == "aipsource-edit-btn"){            
             var sourceid = target.data("sourceid");
             var url = "https://testadminapi.webdatawarehouse.com/api/APISources/" + sourceid;
-            open_add_apisource_modal(url, token, db);            
+            open_edit_apisource_modal(url, token, db);            
         }
     });
 
