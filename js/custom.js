@@ -8,6 +8,27 @@
 (function ($) {
 	"use strict"
 
+    var URL_API_METHODS = "https://testadminapi.webdatawarehouse.com/api/APIMethods";
+    var URL_API_SOURCES = "https://testadminapi.webdatawarehouse.com/api/APISources";
+
+    function block_ui(){
+        /*
+        $.blockUI({ css: { 
+            border: 'none', 
+            padding: '15px', 
+            backgroundColor: '#000', 
+            '-webkit-border-radius': '10px', 
+            '-moz-border-radius': '10px', 
+            opacity: .5, 
+            color: '#fff' 
+        } }); 
+        */
+    }
+
+    function unblock_ui(){
+        //$.unblockUI();
+    }
+
     function getOrigin(){
         var href = window.location.href;
         var h_arr = href.split('/');
@@ -60,20 +81,24 @@
         $.ajax(settings).done(function (response) {            
             callback(response);
         }).fail(function(response){
-            callback("[]");
+            //callback("[]");
+            //token is expired, go to login
+            window.location.href = origin + "login.html";
         });
     }
 
 
     function init_maintable(){
+        block_ui();
         //getGetDataFromAPI("https://testadminapi.webdatawarehouse.com/api/APISources", token, db, function(response){
         //getGetDataFromAPI("sampledata/apimethods.txt", token, db, function(response){
         getGetDataFromAPI("https://testadminapi.webdatawarehouse.com/api/APIMethods", token, db, function(response){
-            var apimethods = JSON.parse(response);
+            //var apimethods = JSON.parse(response);
+            var apimethods = response;
             for(var i=0; i<apimethods.length; i++){
                 var am = apimethods[i];
                 
-                var api_source = '<a class="aipsource-edit-btn" href="javascript:;" data-source="' + am["APISource"] + '">' + am["APISource"] + '</a>';            var api_method_name = am["APIMethodName"];
+                var api_source = '<a class="aipsource-edit-btn" href="javascript:;" data-sourceid="' + am["APISourceID"] + '">' + am["APISource"] + '</a>';            var api_method_name = am["APIMethodName"];
                 var api_method = am["APIMethod"];
                 var api_type = am["APIType"];
                 var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
@@ -94,11 +119,11 @@
                     ]).draw( false );
             }
             maintable.columns.adjust().draw();
+            unblock_ui();
         });        
     }
 
-    var maintable = $('#maintable').DataTable({
-        
+    var maintable = $('#maintable').DataTable({        
         "scrollX":        true,        
         //"paging":         false,   
         //"autoWidth": false,
@@ -114,11 +139,21 @@
         ],
         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"      
     });
+
     $("div.toolbar").html('<a class="btn add-method-btn">Add</a>');
     $(document.querySelector('.add-method-btn')).on('click', function(e){
+        getGetDataFromAPI(URL_API_METHODS, token, db, function(response){
+            var api_methods = response;
+
+            getGetDataFromAPI(URL_API_SOURCES, token, db, function(response){
+                var api_sources = response;
+
+            });
+        });
+
         $("#edit-method-modal").modal("show");
     });
-
+    
     $(document).on('click', "#edit-method-modal a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
@@ -163,9 +198,15 @@
         "dom": 't',                
     });
 
+    $("#emm-api-source").select2({tags: false});
+    $("#emm-api-method-name").select2({tags: true});
+    $("#emm-api-load-type").select2({tags: false});
+
     function open_add_apisource_modal(url, token, db){
+        block_ui();
         getGetDataFromAPI(url, token, db, function(response){
-            var as = JSON.parse(response);
+            //var as = JSON.parse(response);
+            var as = response;
             $("#esm-title").text("Edit " + as["APISource"]);
             $("#esm-endpoint").val(as["APIEndpoint"]);
 
@@ -193,7 +234,8 @@
                         '<a href="javascript:;" class="delete-btn"> Delete </a>'
                         ]).draw(true);         
                 }
-            }                
+            }          
+            unblock_ui();      
             $("#edit-source-modal").modal("show");
         });
     }
@@ -217,8 +259,10 @@
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
-        if(btn_class == "aipsource-edit-btn"){
-            open_add_apisource_modal("sampledata/apisource.txt", token, db);
+        if(btn_class == "aipsource-edit-btn"){            
+            var sourceid = target.data("sourceid");
+            var url = "https://testadminapi.webdatawarehouse.com/api/APISources/" + sourceid;
+            open_add_apisource_modal(url, token, db);            
         }
     });
 

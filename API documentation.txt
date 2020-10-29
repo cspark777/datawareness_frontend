@@ -27,3 +27,6 @@ urlpatterns = [
     path('APIBody', views.APIBodyListView.as_view(), name='APIBodyList'),
     path('APIBody/<int:pk>', views.APIBodyView.as_view(), name='APIBody'),
 ]
+
+https://www.dropbox.com/s/1opl1giib5tybqv/Admin%20API%20endpoints%20ver%201.0.xlsx?dl=0
+https://balsamiq.cloud/sfnwe24/p5b6jue/r7463

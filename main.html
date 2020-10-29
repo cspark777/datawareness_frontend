@@ -11,6 +11,7 @@
     <title>Datawareness</title>
     <!-- DataTables css -->
     <link href='plugins/datatables/datatables.min.css' rel='stylesheet' />
+    <link href="plugins/select2/css/select2.min.css" rel="stylesheet" />
     <!-- Stylesheets & Fonts -->
     <link href="css/plugins.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -34,10 +35,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="emm-api-source">API Source</label>
-                                    <select class="form-control" id="emm-api-source">
-                                        <option value="header">header</option>
-                                        <option value="aaa">aaa</option>
-                                        <option value="bbb">bbb</option>
+                                    <select style="min-width: 200px;" class="form-control" id="emm-api-source">                                        
                                     </select>
                                 </div>
                             </div>
@@ -50,9 +48,6 @@
                                 <div class="form-group">
                                     <label for="emm-api-method-name">API Method Name</label>
                                     <select class="form-control" id="emm-api-method-name">
-                                        <option value="header">header</option>
-                                        <option value="aaa">aaa</option>
-                                        <option value="bbb">bbb</option>
                                     </select>
                                 </div> 
                             </div>
@@ -72,11 +67,8 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="emm-api-load-type">API Method Name</label>
+                                    <label for="emm-api-load-type">API Load Type</label>
                                     <select class="form-control" id="emm-api-load-type">
-                                        <option value="header">LoopBasedInt</option>
-                                        <option value="aaa">aaa</option>
-                                        <option value="bbb">bbb</option>
                                     </select>
                                 </div>
                             </div>  
@@ -176,7 +168,7 @@
                             </div>
                             <div class="col-md-8" style="text-align: right;">
                                 <a href="javascript:;" class="esm-edit-header-btn">Edit headers</a>
-                                <a href="javascript:;" class="esm-edit-parameter-btn">Edit parameters</a>
+                                <!--<a href="javascript:;" class="esm-edit-parameter-btn">Edit parameters</a>-->
                             </div>
                         </div>
                     </div>
@@ -188,8 +180,6 @@
             </div>
         </div>
         <!-- end: Modal -->
-
-        
 
         <!--edit APIHeader Modal -->
         <div class="modal fade" id="edit-header-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
@@ -359,6 +349,8 @@
     <script src="js/functions.js"></script>
 
     <!--Datatables plugin files-->
+    <script src='plugins/jquery.blockUI.js'></script>
+    <script src="plugins/select2/js/select2.min.js"></script>
     <script src='plugins/datatables/datatables.js'></script>
 
     <script src='js/custom.js'></script>
