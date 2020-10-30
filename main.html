@@ -11,6 +11,7 @@
     <title>Datawareness</title>
     <!-- DataTables css -->
     <link href='plugins/datatables/datatables.min.css' rel='stylesheet' />
+    <link href='plugins/jquery-editable/css/jquery-editable.css' rel='stylesheet' />
     <link href="plugins/select2/css/select2.min.css" rel="stylesheet" />
     <!-- Stylesheets & Fonts -->
     <link href="css/plugins.css" rel="stylesheet">
@@ -23,19 +24,21 @@
     <div class="body-inner">
 
         <!--edit APIMethod Modal -->
-        <div class="modal fade" id="edit-method-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+        <div class="modal fade" id="edit_method_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="emm-title">Add API Method</h4>
+                        <h4 class="modal-title" id="emm_title">Add API Method</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
-                    <div class="modal-body">                        
+                    <div class="modal-body">    
+                        <input type="hidden" id="emm_api_source_id" value="">
+                        <input type="hidden" id="emm_api_method_id" value="">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="emm-api-source">API Source</label>
-                                    <select style="min-width: 200px;" class="form-control" id="emm-api-source">                                        
+                                    <label for="emm_api_source">API Source</label>
+                                    <select style="min-width: 200px;" class="form-control" id="emm_api_source">                                      
                                     </select>
                                 </div>
                             </div>
@@ -46,20 +49,20 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="emm-api-method-name">API Method Name</label>
-                                    <select class="form-control" id="emm-api-method-name">
+                                    <label for="emm_api_method_name">API Method Name</label>
+                                    <select class="form-control" id="emm_api_method_name">
                                     </select>
                                 </div> 
                             </div>
                             <div class="col-md-6 btn-div">
-                                <a href="javascript:;" class="emm-add-method-name-btn">Add API Method Name</a>
+                                <!--<a href="javascript:;" class="emm-add-method-name-btn">Add API Method Name</a>-->
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="emm-api-method">API Method</label>
-                                    <input type="text" class="form-control" id="emm-api-method">
+                                    <label for="emm_api_method">API Method</label>
+                                    <input type="text" class="form-control" id="emm_api_method">
                                 </div>
                             </div>                            
                         </div>
@@ -67,35 +70,33 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="emm-api-load-type">API Load Type</label>
-                                    <select class="form-control" id="emm-api-load-type">
+                                    <label for="emm_api_load_type">API Load Type</label>
+                                    <select class="form-control" id="emm_api_load_type">
                                     </select>
                                 </div>
                             </div>  
                             <div class="col-md-6">
-                                <div class="row" id="loopbasedint-relevant-div" style="display: none;">
+                                <div class="row" id="loopbasedint_relevant_div" style="display: none;">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="emm-start-from">Int Start From</label>
-                                            <input type="text" class="form-control" id="emm-start-from" value="0">
+                                            <label for="emm_start_from">Int Start From</label>
+                                            <input type="text" class="form-control" id="emm_start_from" value="0">
                                         </div>
                                     </div>  
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="emm-last">Int Last</label>
-                                            <input type="text" class="form-control" id="emm-last" value="0">
+                                            <label for="emm_last">Int Last</label>
+                                            <input type="text" class="form-control" id="emm_last" value="0">
                                         </div>
                                     </div>                                                      
                                 </div>
                             </div>                          
                         </div>
 
-                        
-
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-check">                              
-                                    <input class="form-check-input" id="emm-enabled" type="checkbox"><label class="form-check-label" for="emm-enabled">Enabled</label>
+                                    <input class="form-check-input" id="emm_enabled" type="checkbox"><label class="form-check-label" for="emm_enabled">Enabled</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -104,7 +105,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-b">Add</button>
                     </div>
                 </div>
@@ -113,35 +114,35 @@
         <!-- end: Modal -->
         
         <!--edit APISource Modal -->
-        <div class="modal fade" id="edit-source-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+        <div class="modal fade" id="edit_source_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="esm-title"></h4>
+                        <h4 class="modal-title" id="esm_title"></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="emm_apisource_id" value="">
+                        <input type="hidden" id="esm_apisource_id" value="">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="esm-endpoint">API Endpoint</label>
-                                    <input type="text" class="form-control" id="esm-endpoint" placeholder="">
+                                    <label for="esm_endpoint">API Endpoint</label>
+                                    <input type="text" class="form-control" id="esm_endpoint" placeholder="">
                                 </div>
                             </div>
                         </div>
                         <div class="row mb-5">
                             <div class="col-md-12">
                                 <div class="form-check">                              
-                                    <input class="form-check-input" id="esm-outputxml" type="checkbox"><label class="form-check-label" for="esm-outputxml">Output is XML</label>
+                                    <input class="form-check-input" id="esm_outputxml" type="checkbox"><label class="form-check-label" for="esm_outputxml">Output is XML</label>
                                 </div>
                             </div>
                         </div>
                         <div class="row mb-5">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="esm-auth-type">Authentication Type</label>
-                                    <select class="form-control" id="esm-auth-type">
+                                    <label for="esm_auth_type">Authentication Type</label>
+                                    <select class="form-control" id="esm_auth_type">
                                         <option value="header">header</option>
                                         <option value="aaa">aaa</option>
                                         <option value="bbb">bbb</option>
@@ -149,7 +150,7 @@
                                 </div>
                             </div>
                             <div class="col-md-8">
-                                <table id="esm-auth-table" class="table table-bordered table-hover" style="width:100%">
+                                <table id="esm_auth_table" class="table table-bordered table-hover" style="width:100%">
                                     <thead>
                                         <tr>
                                             <td>Header</td>
@@ -164,7 +165,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-check">                              
-                                    <input class="form-check-input" id="esm-enabled" type="checkbox"><label class="form-check-label" for="esm-enabled">Enabled</label>
+                                    <input class="form-check-input" id="esm_enabled" type="checkbox"><label class="form-check-label" for="esm_enabled">Enabled</label>
                                 </div>
                             </div>
                             <div class="col-md-8" style="text-align: right;">
@@ -174,7 +175,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-b">Save Changes</button>
                     </div>
                 </div>
@@ -183,17 +184,17 @@
         <!-- end: Modal -->
 
         <!--edit APIHeader Modal -->
-        <div class="modal fade" id="edit-header-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+        <div class="modal fade" id="edit_header_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="ehm-title"></h4>
+                        <h4 class="modal-title" id="ehm_title"></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <table id="ehm-table" class="table table-bordered table-hover" style="width:100%">
+                                <table id="ehm_table" class="table table-bordered table-hover" style="width:100%">
                                     <thead>
                                         <tr>
                                             <td>Header</td>
@@ -206,7 +207,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-b">Save Changes</button>
                     </div>
                 </div>
@@ -215,17 +216,17 @@
         <!-- end: Modal -->
 
         <!--edit APIParameter Modal -->
-        <div class="modal fade" id="edit-parameter-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+        <div class="modal fade" id="edit_parameter_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="epm-title"></h4>
+                        <h4 class="modal-title" id="epm_title"></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <table id="epm-table" class="table table-bordered table-hover" style="width:100%">
+                                <table id="epm_table" class="table table-bordered table-hover" style="width:100%">
                                     <thead>
                                         <tr>
                                             <td>API Method</td>
@@ -237,9 +238,14 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="javascript:;" id="add_api_parameter_btn"> + Add </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-b">Save Changes</button>
                     </div>
                 </div>
@@ -248,25 +254,25 @@
         <!-- end: Modal -->
 
         <!--add APIMethod Name Modal -->
-        <div class="modal fade" id="add-method-name-modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+        <div class="modal fade" id="add_method_name_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="amnm-title">Add API Method Name</h4>
+                        <h4 class="modal-title" id="amnm_title">Add API Method Name</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="amnm-name">API Method Name ( has to be unique for this API Source ) </label>
-                                    <input type="text" class="form-control" id="amnm-name" placeholder="">
+                                    <label for="amnm_name">API Method Name ( has to be unique for this API Source ) </label>
+                                    <input type="text" class="form-control" id="amnm_name" placeholder="">
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-b">Add</button>
                     </div>
                 </div>
@@ -279,7 +285,7 @@
             <div class="container">
                 <!-- DataTable -->
                 <div class="row mb-3">
-                    <div class="col-lg-6" id="subscription-name">
+                    <div class="col-lg-6" id="subscriptionname">
                         <h4></h4>
                     </div>
                     <div class="col-lg-6 text-right">                        
@@ -289,13 +295,12 @@
                                 <ul>
                                     <li>Subscription</li>
                                     <li></li>
-                                    <li><a href="#"><i class="icon-x"></i>Delete</a></li>
+                                    
                                     <li>
                                         <hr>
                                     </li>
-                                    <li><a href="#"><i class="icon-life-buoy"></i>Documentation</a></li>
-                                    <li><a href="#"><i class="icon-mail"></i>Email Support Team</a></li>
-                                    <li><a href="#"><i class="icon-alert-triangle"></i>Report an issue</a></li>
+                                    
+                                    <li><a href="#">Logout</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -353,6 +358,8 @@
     <script src='plugins/jquery.blockUI.js'></script>
     <script src="plugins/select2/js/select2.min.js"></script>
     <script src='plugins/datatables/datatables.js'></script>
+    <script src='plugins/jquery-editable/js/jquery-editable-poshytip.js'></script>
+    
 
     <script src='js/custom.js'></script>
 

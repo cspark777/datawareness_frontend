@@ -10,10 +10,11 @@
 
     var URL_API_METHODS = "https://testadminapi.webdatawarehouse.com/api/APIMethods";
     var URL_API_SOURCES = "https://testadminapi.webdatawarehouse.com/api/APISources";
+    var URL_API_HEADERS = "https://testadminapi.webdatawarehouse.com/api/APIHeaders";
     var URL_API_PARAMETERS = "https://testadminapi.webdatawarehouse.com/api/APIParameters";
 
     function block_ui(){
-        /*
+        
         $.blockUI({ css: { 
             border: 'none', 
             padding: '15px', 
@@ -23,12 +24,23 @@
             opacity: .5, 
             color: '#fff' 
         } }); 
-        */
+        
     }
 
     function unblock_ui(){
-        //$.unblockUI();
+        $.unblockUI();
     }
+
+    $.fn.destroySelect2 = function () {
+        $.each(this, function () {
+            try {
+                if (!(this).data('select2')) {
+                    $(this).select2('destroy');
+                }
+            } catch (e) {
+            }
+        });
+    };
 
     function getOrigin(){
         var href = window.location.href;
@@ -66,7 +78,7 @@
 
     // ===== init part
 
-    $("#subscription-name").html("<h4>" + db + "</h4>");
+    $("#subscription_name").html("<h4>" + db + "</h4>");
     // =====
 
     function getGetDataFromAPI(url, token, db, callback){
@@ -84,11 +96,13 @@
         }).fail(function(response){
             //callback("[]");
             //token is expired, go to login
-            window.location.href = origin + "login.html";
+            //window.location.href = origin + "login.html";
+            alert(response.statusText);
+            unblock_ui();
         });
     }
 
-
+    //========= Main table ================
     function init_maintable(){
         block_ui();
         //getGetDataFromAPI("https://testadminapi.webdatawarehouse.com/api/APISources", token, db, function(response){
@@ -143,106 +157,195 @@
 
     $("div.toolbar").html('<a class="btn add-method-btn">Add</a>');
     $(document.querySelector('.add-method-btn')).on('click', function(e){
-        getGetDataFromAPI(URL_API_METHODS, token, db, function(response){
-            var api_methods = response;
+        $("#emm_api_source_id").val("");
+        $("#emm_api_method_id").val("");
+        $("#emm_api_method").val("");
+        $("#emm_enabled").prop("checked", false);
+        
 
-            //remove duplicated method names
-            var api_method_names = [];
-            for(var i=0; i<api_methods.length; i++){
-                if(api_method_names.indexOf(api_methods[i].APIMethodName) == -1){
-                    api_method_names.push(api_methods[i].APIMethodName);
-                }
+        block_ui();
+
+        $("#emm_api_source").destroySelect2();
+        $("#emm_api_source").select2({tags: false});
+
+        getGetDataFromAPI(URL_API_SOURCES, token, db, function(response){
+            var api_sources = response;
+            $("#emm_api_source").destroySelect2();
+            for(var i=0; i<api_sources.length; i++){
+                $("#emm_api_source").append("<option value='"+ api_sources[i].ID +"'>"+ api_sources[i].APISource +"</option>");                      
             }
+            $("#emm_api_source").select2({tags: false});
+            $("#emm_api_source").val(api_sources[0]);
 
-            getGetDataFromAPI(URL_API_SOURCES, token, db, function(response){
-                var api_sources = response;
-
-                $("#emm-api-source").select2("destroy");
-                for(var i=0; i<api_sources.length; i++){
-                    $("#emm-api-source").append("<option value='"+ api_sources[i].id +"'>"+ api_sources[i].APISource +"</option>");                      
+            getGetDataFromAPI(URL_API_METHODS + "/" + 6, token, db, function(response){
+                var api_methods = response;
+                $("#emm_api_method_name").destroySelect2();
+                for(var i=0; i<api_methods.length; i++){
+                    $("#emm_api_method_name").append("<option value='"+ api_methods[i].ID +"'>"+ api_methods[i].APIMethodName +"</option>");
                 }
-                $("#emm-api-source").select2({tags: false});
-
-                $("#emm-api-method-name").select2("destroy");
-                for(var i=0; i<api_method_names.length; i++){
-                    $("#emm-api-method-name").append("<option value='"+ i +"'>"+ api_method_names[i] +"</option>");                           
-                }
-                $("#emm-api-method-name").select2({tags: true});
-                
+                $("#emm_api_method-name").select2({tags: true});
+                $("#edit_method_modal").modal("show");
+                unblock_ui();
             });
         });
-
-        $("#edit-method-modal").modal("show");
     });
-    
-    $(document).on('click', "#edit-method-modal a", function(e){
+
+    $(document).on('click', "#maintable_wrapper tbody a", function(e){
+        var target = $(e.currentTarget);            
+        var btn_class = $(e.currentTarget).attr("class");
+            
+        if(btn_class == "aipsource-edit-btn"){            
+            var sourceid = target.data("sourceid");
+            var url = "https://testadminapi.webdatawarehouse.com/api/APISources/" + sourceid;
+            open_edit_apisource_modal(url, token, db);            
+        }
+    });
+
+    $("#emm_api_source").select2({tags: false});
+    $("#emm_api_method_name").select2({tags: true});
+    $("#emm_api_load_type").select2({tags: false});
+
+    //=========  Edit API Method modal
+    $("#emm_api_source").on('select2:select', function(e){
+        var emm_api_source_id = $("#emm_api_source").val();
+        block_ui();
+        getGetDataFromAPI(URL_API_METHODS + "/" + 6, token, db, function(response){
+            var api_methods = response;
+            $("#emm_api_method_name").destroySelect2();
+            for(var i=0; i<api_methods.length; i++){
+                $("#emm_api_method_name").append("<option value='"+ api_methods[i].ID +"'>"+ api_methods[i].APIMethodName +"</option>");
+            }
+            $("#emm_api_method-name").select2({tags: true});
+            unblock_ui();
+        });
+    });
+
+    $(document).on('click', "#edit_method_modal a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
         if(btn_class == "emm-add-source-btn"){
-            open_add_apisource_modal("sampledata/apisource.txt", token, db);
+            var left = document.body.clientWidth/2 - 150;
+            var left_str = left + 'px';
+            $("#edit_source_modal .modal-dialog").css("margin-left", left_str);
+            $("#edit_source_modal .modal-dialog").css("margin-top", "10px");
+            
+            open_add_apisource_modal();
         }
         else if(btn_class == "emm-add-method-name-btn"){
-            $("#amnm-name").val('');            
+            $("#amnm_name").val('');            
             
-            $("#add-method-name-modal").modal("show");
+            $("#add_method_name_modal").modal("show");
 
             var left = document.body.clientWidth/2 - 150;
             var left_str = left + 'px';
-            $("#add-method-name-modal .modal-dialog").css("margin-left", left_str);
+            $("#add_method_name_modal .modal-dialog").css("margin-left", left_str);
         }
         else if(btn_class == "emm-edit-parameter-btn"){
-            var esm_apisource_id = $("#esm_apisource_id").val();
-            if(esm_apisource_id == ""){
-                //new
-                epm_table.clear();
-                $("#edit-parameter-modal").modal("show");
-            }
-            else{
-                open_edit_parameter_modal("sampledata/apiparameter.txt", token, db);    
-            }
-            
-            
+            var api_method_id = $("#emm_api_method_id").val();
+
             var left = document.body.clientWidth/2 - 150;
             var left_str = left + 'px';
-            $("#edit-parameter-modal .modal-dialog").css("margin-left", left_str);
+            $("#edit_parameter_modal .modal-dialog").css("margin-left", left_str);
+
+            if(api_method_id == ""){
+                //new
+                epm_table.clear();
+                $("#edit_parameter_modal").modal("show");
+            }
+            else{
+                open_edit_parameter_modal("sampledata/apiheader.txt", token, db);    
+            }            
+
         }
     });   
 
-
-    var esm_auth_table = $('#esm-auth-table').DataTable({
+    //=========
+    var esm_auth_table = $('#esm_auth_table').DataTable({
         "scrollX": true,
         "scrollY": true,
         "dom": 't',                
     });
 
-    var ehm_table = $('#ehm-table').DataTable({
+    var ehm_table = $('#ehm_table').DataTable({
         "scrollX": true,
         "scrollY": true,
         "dom": 't',                
     });
 
-    var epm_table = $('#epm-table').DataTable({
+
+    //----- edit parameter table
+    $.fn.editable.defaults.mode
+
+    function open_edit_parameter_modal(url, token, db){
+        getGetDataFromAPI(url, token, db, function(response){
+            var ap = JSON.parse(response);
+            $("#epm_title").text("Edit " + ap[0]["APISource"] + " parameters");
+            epm_table.clear();
+            for (var i=0; i<ap.length; i++){                
+                epm_table.row.add([
+                    ap[i]["APIMethod"], ap[i]["Parameter"], ap[i]["DefaultValue"], 
+                    '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                    ]).draw(true);                         
+            }
+            $("#edit_parameter_modal").modal("show");
+        });   
+    }
+
+    var epm_table = $('#epm_table').DataTable({
         "scrollX": true,
         "scrollY": true,
-        "dom": 't',                
+        "dom": 't',  
+        "columns": [
+            {data:"api_method_name"},
+            {data:"header"},
+            {data:"value"},
+            {data:"action"}
+        ],
+        
+        "fnDrawCallback": function () {
+            $('#epm_table tbody td').editable({
+               url: '',
+               type: 'text',                
+            });
+        }
+        
+    });
+    /*
+    $('#epm_table').dataTable().makeEditable({                
+        "aoColumns": [
+                null,
+                {},
+                {},
+                null                            
+        ]                                   
+    });*/
+    
+
+    $("#add_api_parameter_btn").on("click", function(a){
+        epm_table.row.add( {
+            "api_method_name": "Tiger Nixon",
+            "header":   "System Architect",
+            "value":     "$3,120",
+            "action": "",            
+        } ).draw();
     });
 
-    $("#emm-api-source").select2({tags: false});
-    $("#emm-api-method-name").select2({tags: true});
-    $("#emm-api-load-type").select2({tags: false});
+    //------------------
 
-    function open_add_apisource_modal(url, token, db){
+    
+
+    function open_add_apisource_modal(){
         block_ui();        
         $("#esm_apisource_id").val("");
-        $("#esm-title").text("Add APISource");
-        $("#esm-endpoint").val("");   
-        $("#esm-outputxml").prop("checked", false);
-        $("#esm-enabled").prop("checked", false);
+        $("#esm_title").text("Add APISource");
+        $("#esm_endpoint").val("");   
+        $("#esm_outputxml").prop("checked", false);
+        $("#esm_enabled").prop("checked", false);
         esm_auth_table.clear();  
 
         unblock_ui();      
-        $("#edit-source-modal").modal("show"); 
+        $("#edit_source_modal").modal("show"); 
     }
 
     function open_edit_apisource_modal(url, token, db){
@@ -251,21 +354,21 @@
             //var as = JSON.parse(response);
             var as = response;
             $("#esm_apisource_id").val(as["ID"]);
-            $("#esm-title").text("Edit " + as["APISource"]);
-            $("#esm-endpoint").val(as["APIEndpoint"]);
+            $("#esm_title").text("Edit " + as["APISource"]);
+            $("#esm_endpoint").val(as["APIEndpoint"]);
 
             if(as["OutputIsXML"] == 0){
-                $("#esm-outputxml").prop("checked", false);
+                $("#esm_outputxml").prop("checked", false);
             }
             else{
-                $("#esm-outputxml").prop("checked", true);
+                $("#esm_outputxml").prop("checked", true);
             }
 
             if(as["Enabled"] == 0){
-                $("#esm-enabled").prop("checked", false);
+                $("#esm_enabled").prop("checked", false);
             }
             else{
-                $("#esm-enabled").prop("checked", true);
+                $("#esm_enabled").prop("checked", true);
             }
 
             var auth = JSON.parse(as["Authentication"]);
@@ -280,67 +383,56 @@
                 }
             }          
             unblock_ui();      
-            $("#edit-source-modal").modal("show");
+            $("#edit_source_modal").modal("show");
         });
     }
 
-    function open_edit_parameter_modal(url, token, db){
+    function open_edit_header_modal(url, token, db){
         getGetDataFromAPI(url, token, db, function(response){
-            var ap = JSON.parse(response);
-            $("#epm-title").text("Edit " + ap[0]["APISource"] + " parameters");
-            epm_table.clear();
-            for (var i=0; i<ap.length; i++){                
-                epm_table.row.add([
-                    ap[i]["APIMethod"], ap[i]["Parameter"], ap[i]["DefaultValue"], 
+            var ah = JSON.parse(response);
+            $("#ehm_title").text("Edit " + ah[0]["APISource"] + " headers");
+            ehm_table.clear();
+            for (var i=0; i<ah.length; i++){                
+                ehm_table.row.add([
+                    ah[i]["Header"], ah[i]["Value"], 
                     '<a href="javascript:;" class="delete-btn"> Delete </a>'
                     ]).draw(true);                         
             }
-            $("#edit-parameter-modal").modal("show");
-        });   
+            $("#edit_header_modal").modal("show");
+        });
     }
 
-    $(document).on('click', "#maintable_wrapper tbody a", function(e){
-        var target = $(e.currentTarget);            
-        var btn_class = $(e.currentTarget).attr("class");
-            
-        if(btn_class == "aipsource-edit-btn"){            
-            var sourceid = target.data("sourceid");
-            var url = "https://testadminapi.webdatawarehouse.com/api/APISources/" + sourceid;
-            open_edit_apisource_modal(url, token, db);            
-        }
-    });
+    
 
-    $('#edit-source-modal').on('shown.bs.modal', function(){        
+    
+
+    $('#edit_source_modal').on('shown.bs.modal', function(){        
         esm_auth_table.columns.adjust().draw();
     });
 
-    $(document).on('click', "#edit-source-modal a", function(e){
+    $(document).on('click', "#edit_source_modal a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
         if(btn_class == "esm-edit-header-btn"){
-            getGetDataFromAPI("sampledata/apiheader.txt", token, db, function(response){
-                var ah = JSON.parse(response);
-                $("#ehm-title").text("Edit " + ah[0]["APISource"] + " headers");
+            var esm_apisource_id = $("#esm_apisource_id").val();
+            if(esm_apisource_id == ""){
+                //new
                 ehm_table.clear();
-                for (var i=0; i<ah.length; i++){                
-                    ehm_table.row.add([
-                        ah[i]["Header"], ah[i]["Value"], 
-                        '<a href="javascript:;" class="delete-btn"> Delete </a>'
-                        ]).draw(true);                         
-                }
-                $("#edit-header-modal").modal("show");
-            });
-            
+                $("#edit_header_modal").modal("show");
+            }
+            else{
+                open_edit_header_modal("sampledata/apiheader.txt", token, db);    
+            }            
         }
-        else if(btn_class == "esm-edit-parameter-btn"){
-            open_edit_parameter_modal("sampledata/apiparameter.txt", token, db);
-        }
+        //else if(btn_class == "esm-edit-parameter-btn"){
+        //    open_edit_parameter_modal("sampledata/apiparameter.txt", token, db);
+        //}
     });
-    $('#edit-header-modal').on('shown.bs.modal', function(){        
+    $('#edit_header_modal').on('shown.bs.modal', function(){        
         ehm_table.columns.adjust().draw();
     });
-    $('#edit-parameter-modal').on('shown.bs.modal', function(){        
+    $('#edit_parameter_modal').on('shown.bs.modal', function(){        
         epm_table.columns.adjust().draw();
     });
 

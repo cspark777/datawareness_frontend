@@ -21,7 +21,7 @@ section{
 }
 
 @media (min-width: 576px){
-	#edit-source-modal .modal-dialog {
+	#edit_source_modal .modal-dialog {
 	    max-width: 700px;
 	    margin-top: 3rem;    
 	    margin-left: 1.75rem !important;
@@ -30,15 +30,15 @@ section{
 		padding: 30px;
 	}	
 
-	#add-method-name-modal .modal-dialog {
+	#add_method_name_modal .modal-dialog {
 	    max-width: 500px;
 	    margin-top: 5rem;    	    
 	}
-	#edit-method-modal .modal-dialog {
+	#edit_method_modal .modal-dialog {
 	    max-width: 700px;	    
 	}
 
-	#edit-parameter-modal .modal-dialog {
+	#edit_parameter_modal .modal-dialog {
 	    margin-top: 5rem; 	    
 	}
 
