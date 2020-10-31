@@ -72,3 +72,11 @@ table.dataTable tbody td {
 	width: 100% !important;
 	padding: 0;
 }
+
+.method-name-select2{
+	width: 200px;
+}
+
+#maintable .select2-container{
+	width: 100px !important;
+} 

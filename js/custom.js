@@ -158,7 +158,60 @@
             { width : '30px' },
             { width : '30px' }
         ],
-        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"      
+        "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        "fnDrawCallback": function () {
+            $('#maintable tbody td:nth-child(3)').editable({
+                url: '',
+                type: 'text', 
+                mode: 'inline',
+                showbuttons: false, 
+            });
+            $('#maintable tbody td:nth-child(5), td:nth-child(6)').editable({
+                url: '',
+                type: 'text', 
+                mode: 'inline',
+                showbuttons: false,
+                validate: function(value) {
+                    if ($.isNumeric(value) == '') {
+                        return 'Only numbers are allowed';
+                    }
+                } 
+            });
+            $('#maintable tbody td:nth-child(4)').editable({
+                url: '', 
+                type:'select',               
+                mode: 'inline',
+                showbuttons: false, 
+                source: [ 
+                 {value: 0, text: 'Auth type1'},
+                 {value: 1, text: 'Auth type2'},
+                 {value: 2, text: 'Auth type3'},
+                 {value: 3, text: 'Auth type4'},
+                 {value: 4, text: 'Auth type5'}                 
+               ]
+            });
+
+            $('#maintable tbody td:nth-child(2)').editable({
+                url: '', 
+                type:'select',               
+                mode: 'inline',
+                showbuttons: false, 
+                //inputclass: 'method-name-select2',
+                source: [ 
+                 {value: 0, text: 'Auth type1'},
+                 {value: 1, text: 'Auth type2'},
+                 {value: 2, text: 'Auth type3'},
+                 {value: 3, text: 'Auth type4'},
+                 {value: 4, text: 'Auth type5'}                 
+               ]
+            }).on('shown', function(e, editable){
+                editable.input.$input.select2({
+                    width: "250px !important",
+                    minimumResultsForSearch: Infinity
+                });
+                editable.input.$input.select2('val', editable.input.$input.val());
+            });
+        }      
     });
 
     $("div.toolbar").html('<a class="btn add-method-btn">Add</a>');
