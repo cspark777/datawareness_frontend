@@ -10,9 +10,11 @@
     <!-- Document title -->
     <title>Datawareness</title>
     <!-- DataTables css -->
+    
     <link href='plugins/datatables/datatables.min.css' rel='stylesheet' />
     <link href='plugins/jquery-editable/css/jquery-editable.css' rel='stylesheet' />
     <link href="plugins/select2/css/select2.min.css" rel="stylesheet" />
+
     <!-- Stylesheets & Fonts -->
     <link href="css/plugins.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -113,36 +115,36 @@
         </div>
         <!-- end: Modal -->
         
-        <!--edit APISource Modal -->
-        <div class="modal fade" id="edit_source_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
+        <!--APISource Modal -->
+        <div class="modal fade" id="api_source_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="esm_title"></h4>
+                        <h4 class="modal-title" id="asm_title"></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="esm_apisource_id" value="">
+                        <input type="hidden" id="asm_apisource_id" value="">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="esm_endpoint">API Endpoint</label>
-                                    <input type="text" class="form-control" id="esm_endpoint" placeholder="">
+                                    <label for="asm_endpoint">API Endpoint</label>
+                                    <input type="text" class="form-control" id="asm_endpoint" placeholder="">
                                 </div>
                             </div>
                         </div>
                         <div class="row mb-5">
                             <div class="col-md-12">
                                 <div class="form-check">                              
-                                    <input class="form-check-input" id="esm_outputxml" type="checkbox"><label class="form-check-label" for="esm_outputxml">Output is XML</label>
+                                    <input class="form-check-input" id="asm_outputxml" type="checkbox"><label class="form-check-label" for="asm_outputxml">Output is XML</label>
                                 </div>
                             </div>
                         </div>
                         <div class="row mb-5">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="esm_auth_type">Authentication Type</label>
-                                    <select class="form-control" id="esm_auth_type">
+                                    <label for="asm_auth_type">Authentication Type</label>
+                                    <select class="form-control" id="asm_auth_type">
                                         <option value="header">header</option>
                                         <option value="aaa">aaa</option>
                                         <option value="bbb">bbb</option>
@@ -150,27 +152,33 @@
                                 </div>
                             </div>
                             <div class="col-md-8">
-                                <table id="esm_auth_table" class="table table-bordered table-hover" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <td>Header</td>
-                                            <td>Value</td>
-                                            <td>Delete</td>
-                                        </tr>
-                                    </thead>
-                                </table>
+                                <div class="row">
+                                    <table id="asm_auth_table" class="table table-bordered table-hover" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <td>Header</td>
+                                                <td>Value</td>
+                                                <td>Delete</td>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a href="javascript:;" id="add_api_auth_btn">+ Add </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-check">                              
-                                    <input class="form-check-input" id="esm_enabled" type="checkbox"><label class="form-check-label" for="esm_enabled">Enabled</label>
+                                    <input class="form-check-input" id="asm_enabled" type="checkbox"><label class="form-check-label" for="asm_enabled">Enabled</label>
                                 </div>
                             </div>
                             <div class="col-md-8" style="text-align: right;">
-                                <a href="javascript:;" class="esm-edit-header-btn">Edit headers</a>
-                                <!--<a href="javascript:;" class="esm-edit-parameter-btn">Edit parameters</a>-->
+                                <a href="javascript:;" class="asm-edit-header-btn">Edit headers</a>                                
                             </div>
                         </div>
                     </div>
@@ -186,6 +194,8 @@
         <!--edit APIHeader Modal -->
         <div class="modal fade" id="edit_header_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
+                <input type="hidden" id="ehm_api_source_id" value="">                
+                
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title" id="ehm_title"></h4>
@@ -205,6 +215,11 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="javascript:;" id="add_api_header_btn"> + Add </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
@@ -218,6 +233,9 @@
         <!--edit APIParameter Modal -->
         <div class="modal fade" id="edit_parameter_modal" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
+                <input type="hidden" id="epm_api_source_id" value="">                
+                <input type="hidden" id="epm_api_method_id" value="">
+                <input type="hidden" id="epm_api_method_name" value="">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title" id="epm_title"></h4>
