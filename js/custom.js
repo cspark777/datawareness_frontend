@@ -181,7 +181,7 @@
                 url: '', 
                 type:'select',               
                 mode: 'inline',
-                showbuttons: false, 
+                showbuttons: false,                 
                 source: [ 
                  {value: 0, text: 'Auth type1'},
                  {value: 1, text: 'Auth type2'},
@@ -196,7 +196,7 @@
                 type:'select',               
                 mode: 'inline',
                 showbuttons: false, 
-                //inputclass: 'method-name-select2',
+                //inputclass: 'method-name-select2',                
                 source: [ 
                  {value: 0, text: 'Auth type1'},
                  {value: 1, text: 'Auth type2'},
@@ -205,12 +205,17 @@
                  {value: 4, text: 'Auth type5'}                 
                ]
             }).on('shown', function(e, editable){
+                console.log(e);
+                
                 editable.input.$input.select2({
+                    tags: true,
                     width: "250px !important",
                     minimumResultsForSearch: Infinity
                 });
                 editable.input.$input.select2('val', editable.input.$input.val());
-            });
+                
+            })
+            ;
         }      
     });
 
