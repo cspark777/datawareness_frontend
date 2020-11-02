@@ -68,8 +68,18 @@ table.dataTable tbody td {
 	padding-top: 35px;
 }
 
-.select2-container {
-	width: 100% !important;
+/*
+#maintable .select2-container{
+	width: 100px !important;
+} 
+*/
+#api_method_name_select_div > .select2-container{
+	width: 200px !important;
+}
+
+
+.modal .select2-container {
+	min-width: 100% !important;
 	padding: 0;
 }
 
@@ -77,6 +87,32 @@ table.dataTable tbody td {
 	width: 200px;
 }
 
-#maintable .select2-container{
-	width: 100px !important;
-} 
+.editable-input{
+	width: 100%;
+    float: left;
+}
+
+.editable-input textarea{
+	width: 100%;
+}
+
+.editable-buttons{
+	float: left;
+    width: 100%
+}
+
+.editable-submit{
+	width: 45%;
+}
+
+.editable-cancel{
+	width: 45%;
+}
+
+#api_method_name_select_div{
+	position: absolute;
+	z-index: 1000;
+	/*display: none;*/
+}
+
+

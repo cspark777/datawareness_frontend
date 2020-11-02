@@ -4497,8 +4497,11 @@ S2.define('select2/dropdown/attachBody',[
       bottom: $window.scrollTop() + $window.height()
     };
 
-    var enoughRoomAbove = viewport.top < (offset.top - dropdown.height);
-    var enoughRoomBelow = viewport.bottom > (offset.bottom + dropdown.height);
+    //by p
+    //var enoughRoomAbove = viewport.top < (offset.top - dropdown.height);
+    //var enoughRoomBelow = viewport.bottom > (offset.bottom + dropdown.height);
+    var enoughRoomAbove = false;
+    var enoughRoomBelow = true;
 
     var css = {
       left: offset.left,
@@ -4538,6 +4541,9 @@ S2.define('select2/dropdown/attachBody',[
     } else if (!enoughRoomAbove && enoughRoomBelow && isCurrentlyAbove) {
       newDirection = 'below';
     }
+
+    // by p
+    newDirection = 'below';
 
     if (newDirection == 'above' ||
       (isCurrentlyAbove && newDirection !== 'below')) {

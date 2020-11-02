@@ -6,7 +6,7 @@
 */
 
 (function ($) {
-	"use strict"
+    "use strict"
 
     var URL_API_METHODS = "https://testadminapi.webdatawarehouse.com/api/APIMethods";
     var URL_API_SOURCES = "https://testadminapi.webdatawarehouse.com/api/APISources";
@@ -52,7 +52,7 @@
         return origin;
     }
 
-	function getCookie(cname) {
+    function getCookie(cname) {
         var name = cname + "=";
         var ca = document.cookie.split(';');
         for(var i = 0; i < ca.length; i++) {
@@ -70,6 +70,8 @@
     var origin = getOrigin();
     var token = getCookie("token");
     var db = getCookie("db");
+
+    var g_clicked_td;
 
     if(token == ""){
         //window.location.href = origin + "login.html";
@@ -115,11 +117,17 @@
         //getGetDataFromAPI("sampledata/apimethods.txt", token, db, function(response){
         getGetDataFromAPI(URL_API_METHODS, token, db, function(response){
             //var apimethods = JSON.parse(response);
+            var api_method_select_data = [];
+            var uniq_method_name = [];
             var apimethods = response;
             for(var i=0; i<apimethods.length; i++){
                 var am = apimethods[i];
                 
-                var api_source = '<a class="aipsource-edit-btn" href="javascript:;" data-sourceid="' + am["APISourceID"] + '">' + am["APISource"] + '</a>';            var api_method_name = am["APIMethodName"];
+                var api_source = '<a class="api-source-edit-btn" href="javascript:;" data-sourceid="' + am["APISourceID"] + '">' + am["APISource"] + '</a>';
+
+                //var api_method_name = '<a class="api-method-edit-btn" href="javascript:;" data-sourceid="' + am["APIMethodID"] + '">' + am["APIMethodName"] + '</a>';
+                var api_method_name = am["APIMethodName"];
+
                 var api_method = am["APIMethod"];
                 var api_type = am["APIType"];
                 var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
@@ -137,8 +145,26 @@
 
                 maintable.row.add([
                     api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, _delete
-                    ]).draw( false );
+                    ]);
+
+                //
+                if(uniq_method_name.indexOf(am["APIMethodName"])==-1){
+                    var new_data = {'id': am["ID"], 'text': am["APIMethodName"]};
+                    api_method_select_data.push(new_data);
+
+                    uniq_method_name.push(am["APIMethodName"]);
+                    
+                }                
             }
+            $('#api_method_name_select').select2({'data': api_method_select_data, 'tags':true});
+            $("#api_method_name_select").on('select2:select', function (e) {
+                var selected_name = $("#api_method_name_select").find(':selected').text();
+                $('#api_method_name_select option:selected').removeAttr('selected');
+                
+                g_clicked_td.html(selected_name);                    
+                $("#api_method_name_select_div").css({display: 'none'});                
+            });
+
             maintable.columns.adjust().draw();
             unblock_ui();
         });        
@@ -162,9 +188,9 @@
         "fnDrawCallback": function () {
             $('#maintable tbody td:nth-child(3)').editable({
                 url: '',
-                type: 'text', 
+                type: 'textarea', 
                 mode: 'inline',
-                showbuttons: false, 
+                showbuttons: true, 
             });
             $('#maintable tbody td:nth-child(5), td:nth-child(6)').editable({
                 url: '',
@@ -190,32 +216,21 @@
                  {value: 4, text: 'Auth type5'}                 
                ]
             });
+            
+            $('#maintable>tbody>tr td:nth-child(2)').on("click", function(e){  
+                g_clicked_td = $(e.target);              
+                var main_table_div_pos = $("#main_table_div").offset();
+                var main_table_body_pos = $("#maintable").parent().offset();
+                // e.preventDefault();
+                var pos = g_clicked_td.position();
+                var top = main_table_body_pos.top - main_table_div_pos.top + pos.top;
+                var left = main_table_body_pos.left - main_table_div_pos.left + pos.left;
+                
+                $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block'});                
+                $("#api_method_name_select").select2('open');
 
-            $('#maintable tbody td:nth-child(2)').editable({
-                url: '', 
-                type:'select',               
-                mode: 'inline',
-                showbuttons: false, 
-                //inputclass: 'method-name-select2',                
-                source: [ 
-                 {value: 0, text: 'Auth type1'},
-                 {value: 1, text: 'Auth type2'},
-                 {value: 2, text: 'Auth type3'},
-                 {value: 3, text: 'Auth type4'},
-                 {value: 4, text: 'Auth type5'}                 
-               ]
-            }).on('shown', function(e, editable){
-                console.log(e);
                 
-                editable.input.$input.select2({
-                    tags: true,
-                    width: "250px !important",
-                    minimumResultsForSearch: Infinity
-                });
-                editable.input.$input.select2('val', editable.input.$input.val());
-                
-            })
-            ;
+            });
         }      
     });
 
@@ -257,12 +272,13 @@
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
-        if(btn_class == "aipsource-edit-btn"){            
+        if(btn_class == "api-source-edit-btn"){            
             var sourceid = target.data("sourceid");            
             open_apisource_modal(sourceid);            
         }
     });
 
+    //$("#api_method_name_select").select2({tags: true});
     $("#emm_api_source").select2({tags: false});
     $("#emm_api_method_name").select2({tags: true});
     $("#emm_api_load_type").select2({tags: false});
@@ -342,9 +358,10 @@
                         asm_auth_table.row.add([
                             k, auth[0]["credentials"][k], 
                             '<a href="javascript:;" class="delete-btn"> Delete </a>'
-                            ]).draw(true);         
+                            ]);         
                     }
                 }          
+                asm_auth_table.columns.adjust().draw();
                 unblock_ui();      
                 $("#api_source_modal").modal("show");
             });
@@ -456,8 +473,9 @@
                 epm_table.row.add([
                     ap[i]["APIMethod"], ap[i]["Parameter"], ap[i]["DefaultValue"], 
                     '<a href="javascript:;" class="delete-btn"> Delete </a>'
-                    ]).draw(true);                         
+                    ]);
             }
+            epm_table.columns.adjust().draw();
             $("#edit_parameter_modal").modal("show");
         });   
     }
@@ -506,8 +524,10 @@
                 ehm_table.row.add([
                     ah[i]["Header"], ah[i]["Value"], 
                     '<a href="javascript:;" class="delete-btn"> Delete </a>'
-                    ]).draw(true);                         
+                    ]);                         
             }
+            ehm_table.columns.adjust().draw();
+
             $("#edit_header_modal").modal("show");
         });
     }
