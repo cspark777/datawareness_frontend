@@ -104,11 +104,13 @@
         });
     }
 
+    /*
     $(window).on('resize', function () {
         $(".table").each(function(index){
             $(this).DataTable().columns.adjust().draw();
         });
     });
+    */
 
     //========= Main table ================
     function init_maintable(){
@@ -175,24 +177,24 @@
         //"paging":         false,   
         //"autoWidth": false,
         "columns" : [
-            { width : '50px' },
-            { width : '100px' },
-            { width : '300px' },
-            { width : '100px' },        
-            { width : '100px' },
-            { width : '100px' },
-            { width : '30px' },
-            { width : '30px' }
+            { title: 'API Source', width : '10%' },
+            { title: 'API Method Name', width : '20%' },
+            { title: 'API Method', width : '35%' },
+            { title: 'API Type', width : '10%' },        
+            { title: 'Start From', width : '5%' },
+            { title: 'Last', width : '5%' },
+            { title: 'Enabled', width : '5%' },
+            { title: 'Action', width : '10%' }
         ],
         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         "fnDrawCallback": function () {
-            $('#maintable tbody td:nth-child(3)').editable({
+            $('#maintable>tbody>tr td:nth-child(3)').editable({
                 url: '',
                 type: 'textarea', 
                 mode: 'inline',
                 showbuttons: true, 
             });
-            $('#maintable tbody td:nth-child(5), td:nth-child(6)').editable({
+            $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').editable({
                 url: '',
                 type: 'text', 
                 mode: 'inline',
@@ -203,7 +205,7 @@
                     }
                 } 
             });
-            $('#maintable tbody td:nth-child(4)').editable({
+            $('#maintable>tbody>tr td:nth-child(4)').editable({
                 url: '', 
                 type:'select',               
                 mode: 'inline',
@@ -225,8 +227,10 @@
                 var pos = g_clicked_td.position();
                 var top = main_table_body_pos.top - main_table_div_pos.top + pos.top;
                 var left = main_table_body_pos.left - main_table_div_pos.left + pos.left;
+
+                var width = g_clicked_td.width();
                 
-                $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block'});                
+                $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block', width: width});                
                 $("#api_method_name_select").select2('open');
 
                 

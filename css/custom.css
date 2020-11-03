@@ -74,7 +74,7 @@ table.dataTable tbody td {
 } 
 */
 #api_method_name_select_div > .select2-container{
-	width: 200px !important;
+	width: 100% !important;
 }
 
 
