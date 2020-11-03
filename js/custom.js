@@ -12,6 +12,10 @@
     var URL_API_SOURCES = "https://testadminapi.webdatawarehouse.com/api/APISources";
     var URL_API_HEADERS = "https://testadminapi.webdatawarehouse.com/api/APIHeaders";
     var URL_API_PARAMETERS = "https://testadminapi.webdatawarehouse.com/api/APIParameters";
+    var URL_API_AUTH_TYPES = "https://testadminapi.webdatawarehouse.com/api/APITypes";
+
+    var g_api_auth_type = [];
+    var g_api_auth_LoopBasedOnINT_id = 1;
 
     toastr.options = {
         "closeButton": true,
@@ -148,8 +152,7 @@
     */
 
     //========= Main table ================
-    function init_maintable(){
-        block_ui();
+    function init_maintable(){        
         //getGetDataFromAPI("https://testadminapi.webdatawarehouse.com/api/APISources", token, db, function(response){
         //getGetDataFromAPI("sampledata/apimethods.txt", token, db, function(response){
         getGetDataFromAPI(URL_API_METHODS, token, db, function(response){
@@ -166,19 +169,19 @@
 
                 var api_method_name = '<a class="api-method-edit-btn" href="javascript:;" data-json="' + method_data_str + '" data-methodid="' + am["ID"] + '">' + am["APIMethodName"] + '</a>';
 
-                var api_method = am["APIMethod"];
+                var api_method = '<div class="td-api-method">' + am["APIMethod"] + '</div>';
 
-                var api_type = am["APIType"];
+                var api_type = '<div class="td-api-auth-type">' + am["APIType"] + '</div>';
 
                 var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
                 var loop_based_int_last = am["LoopBasedOnINTLast"];
 
                 var loop_class = "";
-                if(api_type != "LoopBasedOnINT"){
+                if(am["APIType"] != "LoopBasedOnINT"){
                     loop_class = "td-disable-content";                    
                 }
-                loop_based_int_start_from = '<div class="' + loop_class + '">' + loop_based_int_start_from + '</div>';
-                loop_based_int_last = '<div class="' + loop_class + '">' + loop_based_int_last + '</div>';
+                loop_based_int_start_from = '<div class="td-loop-start ' + loop_class + '">' + loop_based_int_start_from + '</div>';
+                loop_based_int_last = '<div class="td-loop-last ' + loop_class + '">' + loop_based_int_last + '</div>';
 
                 var enabled = "";
                 if(am["Enabled"] == 1){
@@ -260,75 +263,6 @@
             { title: 'Action', width : '5%' }            
         ],
         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-        "fnDrawCallback": function (e) {
-            $('#maintable>tbody>tr td:nth-child(3)').editable({
-                url: '',
-                type: 'textarea', 
-                mode: 'inline',
-                showbuttons: true, 
-            });
-            $('#maintable>tbody>tr td:nth-child(3)').editable('disable');
-            
-            $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').editable({
-                url: '',
-                type: 'text', 
-                mode: 'inline',
-                showbuttons: false,
-                validate: function(value) {
-                    if ($.isNumeric(value) == '') {
-                        return 'Only numbers are allowed';
-                    }
-                } 
-            });
-            $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').editable('disable');
-
-            $('#maintable>tbody>tr td:nth-child(4)').editable({
-                url: '', 
-                type:'select',               
-                mode: 'inline',
-                showbuttons: false,                 
-                source: [ 
-                 {value: 0, text: 'Auth type1'},
-                 {value: 1, text: 'Auth type2'},
-                 {value: 2, text: 'Auth type3'},
-                 {value: 3, text: 'Auth type4'},
-                 {value: 4, text: 'Auth type5'}                 
-               ]
-            });
-            $('#maintable>tbody>tr td:nth-child(4)').editable('disable');
-
-            $('#maintable>tbody>tr td:nth-child(2)').on("click", function(e){  
-                if(e.currentTarget.parentElement["children"][7]["children"][1].style["display"] == "none"){
-                    return;
-                }
-                if(g_clicked_method_name_td != null){
-                    if(is_changed_method_name_td == 1){
-                        is_changed_method_name_td = 0;                    
-                    }
-                    else{
-                        g_clicked_method_name_td.html(g_clicked_method_name_td_text);
-                    }    
-                }                
-                
-                g_clicked_method_name_td = $(e.target); 
-                g_clicked_method_name_td_text = g_clicked_method_name_td.html();
-                g_clicked_method_name_td.html("");
-
-                var main_table_div_pos = $("#main_table_div").offset();
-                var main_table_body_pos = $("#maintable").parent().offset();
-                // e.preventDefault();
-                var pos = g_clicked_method_name_td.position();
-                var top = main_table_body_pos.top - main_table_div_pos.top + pos.top;
-                var left = main_table_body_pos.left - main_table_div_pos.left + pos.left;
-
-                var width = g_clicked_method_name_td.width() + 20;
-                
-                $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block', width: width});   
-
-                $("#api_method_name_select").val('');             
-                $("#api_method_name_select").select2('open', {tags:true});                
-            });
-        }      
     });
 
     $("div.toolbar").html('<a class="btn add-method-btn">Add</a>');
@@ -371,7 +305,8 @@
         });
     });
 
-    $(document).on('click', "#maintable_wrapper tbody>tr a", function(e){
+    $(document).on('click', "#maintable tbody>tr a", function(e){
+        var target1 = e.currentTarget;   
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
@@ -384,27 +319,88 @@
             $(e.currentTarget.parentElement).css('display', 'none');
             $(e.currentTarget.parentElement.parentElement).find(".method-save-div").css("display", "block");
 
-            $(e.currentTarget.closest("tr")["children"][2]).editable("enable");
-            $(e.currentTarget.closest("tr")["children"][3]).editable("enable");
-            if($(e.currentTarget.closest("tr")["children"][3]).text() == "LoopBasedOnINT"){
-                $(e.currentTarget.closest("tr")["children"][4]).editable("enable");
-                $(e.currentTarget.closest("tr")["children"][5]).editable("enable");
-            }
+            $(e.currentTarget.closest("tr")).find(".td-api-method").editable({
+                url: '',
+                type: 'textarea', 
+                mode: 'inline',
+                showbuttons: true, 
+            });
+
+            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").editable({
+                url: '', 
+                type:'select',               
+                mode: 'inline',
+                showbuttons: false,                 
+                source: g_api_auth_type,
+            });  
+
+            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").on('save', function(e, params) 
+            {
+                if(params.newValue == g_api_auth_LoopBasedOnINT_id){
+                    $(e.currentTarget.closest("tr")).find(".td-loop-start").editable("enable");
+                    $(e.currentTarget.closest("tr")).find(".td-loop-last").editable("enable");
+                }
+                else{
+                    $(e.currentTarget.closest("tr")).find(".td-loop-start").text("0");
+                    $(e.currentTarget.closest("tr")).find(".td-loop-start").editable("disable");
+                    $(e.currentTarget.closest("tr")).find(".td-loop-start").text("0");
+                    $(e.currentTarget.closest("tr")).find(".td-loop-last").editable("disable");
+                }
+            });
+
+            $(e.currentTarget.closest("tr")).find(".td-loop-start").editable({
+                url: '',
+                type: 'text', 
+                mode: 'inline',
+                showbuttons: false,
+                validate: function(value) {
+                    if ($.isNumeric(value) == '') {
+                        return 'Only numbers are allowed';
+                    }
+                } 
+            });
+
+            $(e.currentTarget.closest("tr")).find(".td-loop-last").editable({
+                    url: '',
+                    type: 'text', 
+                    mode: 'inline',
+                    showbuttons: false,
+                    validate: function(value) {
+                        if ($.isNumeric(value) == '') {
+                            return 'Only numbers are allowed';
+                        }
+                    } 
+                }); 
+
+            if($(e.currentTarget.closest("tr")).find(".td-api-auth-type").text() != "LoopBasedOnINT")
+            {                
+                $(e.currentTarget.closest("tr")).find(".td-loop-start").editable('disable');
+                $(e.currentTarget.closest("tr")).find(".td-loop-last").editable('disable');
+            }            
         }
         else if(btn_class=="cancel-btn"){
             var method_data = JSON.parse(decodeURIComponent($(e.currentTarget.closest("tr")["children"][1]["children"][0]).data("json")));
 
             $(e.currentTarget.closest("tr")["children"][1]["children"][0]).text(method_data["APIMethodName"]);
-            $(e.currentTarget.closest("tr")["children"][2]).text(method_data["APIMethod"]);
-            $(e.currentTarget.closest("tr")["children"][3]).text(method_data["APIType"]);
-            $(e.currentTarget.closest("tr")["children"][4]["children"][0]).text(method_data["LoopBasedOnINTStartFrom"]);
-            $(e.currentTarget.closest("tr")["children"][5]["children"][0]).text(method_data["LoopBasedOnINTLast"]);
+
+            $(e.currentTarget.closest("tr")).find(".td-api-method").text(method_data["APIMethod"]);
+            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").text(method_data["APIType"]);
+            $(e.currentTarget.closest("tr")).find(".td-loop-start").text(method_data["LoopBasedOnINTStartFrom"]);
+            $(e.currentTarget.closest("tr")).find(".td-loop-last").text(method_data["LoopBasedOnINTLast"]);
             if(method_data["Enabled"] == 1){
                 $(e.currentTarget.closest("tr")["children"][6]["children"][0]).prop('checked', true);
             }
             else{
                 $(e.currentTarget.closest("tr")["children"][6]["children"][0]).prop('checked', false);
             }
+
+            $(e.currentTarget.closest("tr")).find(".td-api-method").editable("destroy");
+            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").editable("destroy");
+            $(e.currentTarget.closest("tr")).find(".td-loop-start").editable("destroy");
+            $(e.currentTarget.closest("tr")).find(".td-loop-last").editable("destroy");
+            
+            $("#api_method_name_select_div").css("display", "none");
+
 
             $(e.currentTarget.parentElement).css('display', 'none');
             $(e.currentTarget.parentElement.parentElement).find(".method-edit-div").css("display", "block");
@@ -425,6 +421,38 @@
                     });
                 }
             }); 
+        }
+        else if(btn_class == "api-method-edit-btn"){
+            if($(e.currentTarget.closest("tr")).find(".method-edit-div").css("display") == "block"){
+                return;
+            }
+            if(g_clicked_method_name_td != null){
+                if(is_changed_method_name_td == 1){
+                    is_changed_method_name_td = 0;                    
+                }
+                else{
+                    g_clicked_method_name_td.html(g_clicked_method_name_td_text);
+                }    
+            }                
+            
+            g_clicked_method_name_td = $(e.target); 
+            g_clicked_method_name_td_text = g_clicked_method_name_td.html();
+            g_clicked_method_name_td.html("");
+
+            var main_table_div_pos = $("#main_table_div").offset();
+            var main_table_body_pos = $("#maintable").parent().offset();
+            // e.preventDefault();
+            var td = $(e.currentTarget.closest("td"));
+            var pos = td.position();
+            var top = main_table_body_pos.top - main_table_div_pos.top + pos.top;
+            var left = main_table_body_pos.left - main_table_div_pos.left + pos.left;
+
+            var width = td.width() + 20;
+            
+            $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block', width: width});   
+
+            $("#api_method_name_select").val('');             
+            $("#api_method_name_select").select2('open', {tags:true});   
         }
     });
     
@@ -499,7 +527,7 @@
                 else{
                     $("#asm_enabled").prop("checked", true);
                 }
-
+                as["Authentication"] = as["Authentication"].replaceAll("\\", "");
                 var auth = JSON.parse(as["Authentication"]);
                 asm_auth_table.clear();            
 
@@ -700,7 +728,18 @@
         epm_table.columns.adjust().draw();
     });
 
-    init_maintable();    
+    block_ui();
+    getGetDataFromAPI(URL_API_AUTH_TYPES, token, db, function(response){        
+        $.each(response, function(index, val){ 
+            var data = {value:val.id, text:val.LoadType};
+            g_api_auth_type.push(data);
+            if(val.LoadType == "LoopBasedOnINT"){
+                g_api_auth_LoopBasedOnINT_id = val.id;
+            }
+        });
+        init_maintable();    
+    });
+    
 
 
 
