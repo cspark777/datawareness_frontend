@@ -115,4 +115,42 @@ table.dataTable tbody td {
 	display: none;
 }
 
+.select2-control-btn{
+	text-align: right;
+	font-size: 18px;
+}
+.select2-control-btn .icon-check{
+	cursor: pointer;
+	margin-right: 5	px; 
+}
 
+.select2-control-btn .icon-x{
+	cursor: pointer;
+}
+
+.td-disable-content{
+	color: #aaa;
+}
+
+.method-edit-div{
+	font-size: 20px;
+}
+
+.method-edit-div .edit-btn{
+	margin-right: 10px;
+}
+
+.method-save-div{
+	font-size: 20px;	
+}
+.method-save-div .save-btn{
+	margin-right: 10px;
+}
+
+.toast-error {
+    background-color: #bd362f;
+}
+
+.toast-success {
+    background-color: #51a351;
+}

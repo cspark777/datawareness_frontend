@@ -13,6 +13,21 @@
     var URL_API_HEADERS = "https://testadminapi.webdatawarehouse.com/api/APIHeaders";
     var URL_API_PARAMETERS = "https://testadminapi.webdatawarehouse.com/api/APIParameters";
 
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "positionClass": "toast-top-right",
+        "onclick": null,
+        "showDuration": "1000",
+        "hideDuration": "1000",
+        "timeOut": "3000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+
     function block_ui(){
         
         $.blockUI({ css: { 
@@ -71,7 +86,9 @@
     var token = getCookie("token");
     var db = getCookie("db");
 
-    var g_clicked_td;
+    var g_clicked_method_name_td = null;
+    var g_clicked_method_name_td_text = "";
+    var is_changed_method_name_td = 0;
 
     if(token == ""){
         //window.location.href = origin + "login.html";
@@ -99,8 +116,26 @@
             //callback("[]");
             //token is expired, go to login
             //window.location.href = origin + "login.html";
-            alert(response.statusText);
-            unblock_ui();
+            //alert(response.statusText);
+            callback(response);            
+        });
+    }
+
+    function deleteDataAPI(url, token, db, callback){
+        var _url = url + "?subscription=" + db;
+        var settings = {
+            "url": _url,
+            "method": "DELETE",
+            "timeout": 0,
+            "headers": {
+            "Authorization": "Bearer " + token
+            },
+        };
+
+        $.ajax(settings).done(function (response) {
+            callback(response);
+        }).fail(function(response){            
+            callback(response);            
         });
     }
 
@@ -127,13 +162,18 @@
                 
                 var api_source = '<a class="api-source-edit-btn" href="javascript:;" data-sourceid="' + am["APISourceID"] + '">' + am["APISource"] + '</a>';
 
-                //var api_method_name = '<a class="api-method-edit-btn" href="javascript:;" data-sourceid="' + am["APIMethodID"] + '">' + am["APIMethodName"] + '</a>';
                 var api_method_name = am["APIMethodName"];
 
                 var api_method = am["APIMethod"];
                 var api_type = am["APIType"];
+
                 var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
                 var loop_based_int_last = am["LoopBasedOnINTLast"];
+
+                if(api_type != "LoopBasedOnINT"){
+                    loop_based_int_start_from = '<div class="td-disable-content">' + loop_based_int_start_from + '</div>';
+                    loop_based_int_last = '<div class="td-disable-content">' + loop_based_int_last + '</div>';
+                }
 
                 var enabled = "";
                 if(am["Enabled"] == 1){
@@ -143,10 +183,16 @@
                     enabled = '<input type="checkbox" class="enable-btn">';
                 }
                 
-                var _delete = '<a href="javascript:;" class="delete-btn">delete</a>';
+                var edit_delete = '<div class="method-edit-div">' + 
+                            '<a href="javascript:;" class="edit-btn" title="Edit API Method" data-methodid="' + am["ID"] + '"><i class="fa fa-edit"></i></a>' +
+                            '<a href="javascript:;" class="delete-btn" title="Delete API Method"  data-methodid="' + am["ID"] + '"><i class="fa fa-trash-alt"></i></a>';
+
+                var save_cancel = '<div class="method-save-div" style="display:none;">' + 
+                            '<a href="javascript:;" class="save-btn" title="Save changed API Method"  data-methodid="' + am["ID"] + '"><i class="fa fa-save"></i></a>' + 
+                            '<a href="javascript:;" class="cancel-btn" title="Cancel API Method change" data-methodid="' + am["ID"] + '"><i class="fa fa-window-close"></i></a>' + '</div>';
 
                 maintable.row.add([
-                    api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, _delete
+                    api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, edit_delete + save_cancel
                     ]);
 
                 //
@@ -154,17 +200,37 @@
                     var new_data = {'id': am["ID"], 'text': am["APIMethodName"]};
                     api_method_select_data.push(new_data);
 
-                    uniq_method_name.push(am["APIMethodName"]);
-                    
+                    $('#api_method_name_select').append($('<option>', {
+                        value: am["ID"],
+                        text: am["APIMethodName"]
+                    }));
+
+                    uniq_method_name.push(am["APIMethodName"]);                    
                 }                
             }
-            $('#api_method_name_select').select2({'data': api_method_select_data, 'tags':true});
+            $('#api_method_name_select').select2({'tags':true});
+            
             $("#api_method_name_select").on('select2:select', function (e) {
                 var selected_name = $("#api_method_name_select").find(':selected').text();
                 $('#api_method_name_select option:selected').removeAttr('selected');
-                
-                g_clicked_td.html(selected_name);                    
+                //g_clicked_method_name_td.html(selected_name);                    
+                //$("#api_method_name_select_div").css({display: 'none'});                
+            });
+
+            $("#api_method_name_select_div .icon-check").on('click', function (e) {
+                var selected_name = $("#api_method_name_select").find(':selected').text();
+                $('#api_method_name_select option:selected').removeAttr('selected');
+                g_clicked_method_name_td.html(selected_name);                    
+                $("#api_method_name_select_div").css({display: 'none'});    
+                is_changed_method_name_td = 1;
+                g_clicked_method_name_td_text = "";            
+            });
+            $("#api_method_name_select_div .icon-x").on('click', function (e) {
+                var selected_name = $("#api_method_name_select").find(':selected').text();
+                $('#api_method_name_select option:selected').removeAttr('selected');
+                g_clicked_method_name_td.html(g_clicked_method_name_td_text);
                 $("#api_method_name_select_div").css({display: 'none'});                
+                is_changed_method_name_td = 0;
             });
 
             maintable.columns.adjust().draw();
@@ -179,21 +245,39 @@
         "columns" : [
             { title: 'API Source', width : '10%' },
             { title: 'API Method Name', width : '20%' },
-            { title: 'API Method', width : '35%' },
+            { title: 'API Method', width : '40%' },
             { title: 'API Type', width : '10%' },        
             { title: 'Start From', width : '5%' },
             { title: 'Last', width : '5%' },
             { title: 'Enabled', width : '5%' },
-            { title: 'Action', width : '10%' }
+            { title: 'Action', width : '5%' }
         ],
         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-        "fnDrawCallback": function () {
+        "fnDrawCallback": function (e) {
             $('#maintable>tbody>tr td:nth-child(3)').editable({
                 url: '',
                 type: 'textarea', 
                 mode: 'inline',
                 showbuttons: true, 
             });
+            $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').on('click', function(e){
+                console.log(e);
+                if($(e.currentTarget.parentElement).children()[3].textContent == "LoopBasedOnINT"){
+                    $(e.currentTarget).editable({
+                        url: '',
+                        type: 'text', 
+                        mode: 'inline',
+                        showbuttons: false,
+                        validate: function(value) {
+                            if ($.isNumeric(value) == '') {
+                                return 'Only numbers are allowed';
+                            }
+                        } 
+                    });
+                    $(e.currentTarget).editable('toggle');
+                }
+            });
+            /*
             $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').editable({
                 url: '',
                 type: 'text', 
@@ -205,6 +289,7 @@
                     }
                 } 
             });
+            */
             $('#maintable>tbody>tr td:nth-child(4)').editable({
                 url: '', 
                 type:'select',               
@@ -220,18 +305,32 @@
             });
             
             $('#maintable>tbody>tr td:nth-child(2)').on("click", function(e){  
-                g_clicked_td = $(e.target);              
+                if(g_clicked_method_name_td != null){
+                    if(is_changed_method_name_td == 1){
+                        is_changed_method_name_td = 0;                    
+                    }
+                    else{
+                        g_clicked_method_name_td.html(g_clicked_method_name_td_text);
+                    }    
+                }                
+                
+                g_clicked_method_name_td = $(e.target); 
+                g_clicked_method_name_td_text = g_clicked_method_name_td.html();
+                g_clicked_method_name_td.html("");
+
                 var main_table_div_pos = $("#main_table_div").offset();
                 var main_table_body_pos = $("#maintable").parent().offset();
                 // e.preventDefault();
-                var pos = g_clicked_td.position();
+                var pos = g_clicked_method_name_td.position();
                 var top = main_table_body_pos.top - main_table_div_pos.top + pos.top;
                 var left = main_table_body_pos.left - main_table_div_pos.left + pos.left;
 
-                var width = g_clicked_td.width();
+                var width = g_clicked_method_name_td.width() + 20;
                 
-                $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block', width: width});                
-                $("#api_method_name_select").select2('open');
+                $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block', width: width});   
+
+                $("#api_method_name_select").val('');             
+                $("#api_method_name_select").select2('open', {tags:true});
 
                 
             });
@@ -252,9 +351,15 @@
 
         getGetDataFromAPI(URL_API_SOURCES, token, db, function(response){
             var api_sources = response;
+            var uniq_api_source_names = [];
+
             $("#emm_api_source").destroySelect2();
             for(var i=0; i<api_sources.length; i++){
-                $("#emm_api_source").append("<option value='"+ api_sources[i].ID +"'>"+ api_sources[i].APISource +"</option>");                      
+                if(uniq_api_source_names.indexOf(api_sources[i].APISource) == -1){
+                    $("#emm_api_source").append("<option value='"+ api_sources[i].ID +"'>"+ api_sources[i].APISource +"</option>"); 
+                    uniq_api_source_names.push(api_sources[i].APISource);
+                }
+                
             }
             $("#emm_api_source").select2({tags: false});
             $("#emm_api_source").val(api_sources[0]);
@@ -272,7 +377,7 @@
         });
     });
 
-    $(document).on('click', "#maintable_wrapper tbody a", function(e){
+    $(document).on('click', "#maintable_wrapper tbody>tr a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
             
@@ -280,8 +385,27 @@
             var sourceid = target.data("sourceid");            
             open_apisource_modal(sourceid);            
         }
+        else if(btn_class == "edit-btn"){
+            console.log(e);
+        }
+        else if(btn_class == "delete-btn"){
+            var method_id = target.data("methodid");
+            bootbox.confirm("Are you sure to delete the API Method?", function(result) {
+                if(result){
+                    deleteDataAPI(URL_API_METHODS + "/" + method_id, token, db, function(response){
+                        unblock_ui();
+                        if(response == 1){//success
+                            var $toast = toastr["success"]("The Method is deleted.", "Success");
+                        }
+                        else{
+                            var $toast = toastr["error"]("Error is occurred.", "Error");
+                        }
+                    });
+                }
+            }); 
+        }
     });
-
+    
     //$("#api_method_name_select").select2({tags: true});
     $("#emm_api_source").select2({tags: false});
     $("#emm_api_method_name").select2({tags: true});
@@ -480,6 +604,7 @@
                     ]);
             }
             epm_table.columns.adjust().draw();
+            unblock_ui();
             $("#edit_parameter_modal").modal("show");
         });   
     }
@@ -531,7 +656,7 @@
                     ]);                         
             }
             ehm_table.columns.adjust().draw();
-
+            unblock_ui();
             $("#edit_header_modal").modal("show");
         });
     }
