@@ -159,21 +159,26 @@
             var apimethods = response;
             for(var i=0; i<apimethods.length; i++){
                 var am = apimethods[i];
+
+                var method_data_str = encodeURIComponent(JSON.stringify(am));
                 
                 var api_source = '<a class="api-source-edit-btn" href="javascript:;" data-sourceid="' + am["APISourceID"] + '">' + am["APISource"] + '</a>';
 
-                var api_method_name = am["APIMethodName"];
+                var api_method_name = '<a class="api-method-edit-btn" href="javascript:;" data-json="' + method_data_str + '" data-methodid="' + am["ID"] + '">' + am["APIMethodName"] + '</a>';
 
                 var api_method = am["APIMethod"];
+
                 var api_type = am["APIType"];
 
                 var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
                 var loop_based_int_last = am["LoopBasedOnINTLast"];
 
+                var loop_class = "";
                 if(api_type != "LoopBasedOnINT"){
-                    loop_based_int_start_from = '<div class="td-disable-content">' + loop_based_int_start_from + '</div>';
-                    loop_based_int_last = '<div class="td-disable-content">' + loop_based_int_last + '</div>';
+                    loop_class = "td-disable-content";                    
                 }
+                loop_based_int_start_from = '<div class="' + loop_class + '">' + loop_based_int_start_from + '</div>';
+                loop_based_int_last = '<div class="' + loop_class + '">' + loop_based_int_last + '</div>';
 
                 var enabled = "";
                 if(am["Enabled"] == 1){
@@ -185,11 +190,13 @@
                 
                 var edit_delete = '<div class="method-edit-div">' + 
                             '<a href="javascript:;" class="edit-btn" title="Edit API Method" data-methodid="' + am["ID"] + '"><i class="fa fa-edit"></i></a>' +
-                            '<a href="javascript:;" class="delete-btn" title="Delete API Method"  data-methodid="' + am["ID"] + '"><i class="fa fa-trash-alt"></i></a>';
+                            '<a href="javascript:;" class="delete-btn" title="Delete API Method"  data-methodid="' + am["ID"] + '"><i class="fa fa-trash-alt"></i></a></div>';
 
                 var save_cancel = '<div class="method-save-div" style="display:none;">' + 
                             '<a href="javascript:;" class="save-btn" title="Save changed API Method"  data-methodid="' + am["ID"] + '"><i class="fa fa-save"></i></a>' + 
                             '<a href="javascript:;" class="cancel-btn" title="Cancel API Method change" data-methodid="' + am["ID"] + '"><i class="fa fa-window-close"></i></a>' + '</div>';
+
+                
 
                 maintable.row.add([
                     api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, edit_delete + save_cancel
@@ -250,7 +257,7 @@
             { title: 'Start From', width : '5%' },
             { title: 'Last', width : '5%' },
             { title: 'Enabled', width : '5%' },
-            { title: 'Action', width : '5%' }
+            { title: 'Action', width : '5%' }            
         ],
         "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-5 toolbar'><'col-sm-12 col-md-3'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         "fnDrawCallback": function (e) {
@@ -260,24 +267,8 @@
                 mode: 'inline',
                 showbuttons: true, 
             });
-            $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').on('click', function(e){
-                console.log(e);
-                if($(e.currentTarget.parentElement).children()[3].textContent == "LoopBasedOnINT"){
-                    $(e.currentTarget).editable({
-                        url: '',
-                        type: 'text', 
-                        mode: 'inline',
-                        showbuttons: false,
-                        validate: function(value) {
-                            if ($.isNumeric(value) == '') {
-                                return 'Only numbers are allowed';
-                            }
-                        } 
-                    });
-                    $(e.currentTarget).editable('toggle');
-                }
-            });
-            /*
+            $('#maintable>tbody>tr td:nth-child(3)').editable('disable');
+            
             $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').editable({
                 url: '',
                 type: 'text', 
@@ -289,7 +280,8 @@
                     }
                 } 
             });
-            */
+            $('#maintable>tbody>tr td:nth-child(5), td:nth-child(6)').editable('disable');
+
             $('#maintable>tbody>tr td:nth-child(4)').editable({
                 url: '', 
                 type:'select',               
@@ -303,8 +295,12 @@
                  {value: 4, text: 'Auth type5'}                 
                ]
             });
-            
+            $('#maintable>tbody>tr td:nth-child(4)').editable('disable');
+
             $('#maintable>tbody>tr td:nth-child(2)').on("click", function(e){  
+                if(e.currentTarget.parentElement["children"][7]["children"][1].style["display"] == "none"){
+                    return;
+                }
                 if(g_clicked_method_name_td != null){
                     if(is_changed_method_name_td == 1){
                         is_changed_method_name_td = 0;                    
@@ -330,9 +326,7 @@
                 $("#api_method_name_select_div").css({top: top+5, left: left+3, display: 'block', width: width});   
 
                 $("#api_method_name_select").val('');             
-                $("#api_method_name_select").select2('open', {tags:true});
-
-                
+                $("#api_method_name_select").select2('open', {tags:true});                
             });
         }      
     });
@@ -387,6 +381,34 @@
         }
         else if(btn_class == "edit-btn"){
             console.log(e);
+            $(e.currentTarget.parentElement).css('display', 'none');
+            $(e.currentTarget.parentElement.parentElement).find(".method-save-div").css("display", "block");
+
+            $(e.currentTarget.closest("tr")["children"][2]).editable("enable");
+            $(e.currentTarget.closest("tr")["children"][3]).editable("enable");
+            if($(e.currentTarget.closest("tr")["children"][3]).text() == "LoopBasedOnINT"){
+                $(e.currentTarget.closest("tr")["children"][4]).editable("enable");
+                $(e.currentTarget.closest("tr")["children"][5]).editable("enable");
+            }
+        }
+        else if(btn_class=="cancel-btn"){
+            var method_data = JSON.parse(decodeURIComponent($(e.currentTarget.closest("tr")["children"][1]["children"][0]).data("json")));
+
+            $(e.currentTarget.closest("tr")["children"][1]["children"][0]).text(method_data["APIMethodName"]);
+            $(e.currentTarget.closest("tr")["children"][2]).text(method_data["APIMethod"]);
+            $(e.currentTarget.closest("tr")["children"][3]).text(method_data["APIType"]);
+            $(e.currentTarget.closest("tr")["children"][4]["children"][0]).text(method_data["LoopBasedOnINTStartFrom"]);
+            $(e.currentTarget.closest("tr")["children"][5]["children"][0]).text(method_data["LoopBasedOnINTLast"]);
+            if(method_data["Enabled"] == 1){
+                $(e.currentTarget.closest("tr")["children"][6]["children"][0]).prop('checked', true);
+            }
+            else{
+                $(e.currentTarget.closest("tr")["children"][6]["children"][0]).prop('checked', false);
+            }
+
+            $(e.currentTarget.parentElement).css('display', 'none');
+            $(e.currentTarget.parentElement.parentElement).find(".method-edit-div").css("display", "block");
+
         }
         else if(btn_class == "delete-btn"){
             var method_id = target.data("methodid");
