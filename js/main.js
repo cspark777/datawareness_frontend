@@ -12,10 +12,12 @@
     var URL_API_SOURCES = "https://testadminapi.webdatawarehouse.com/api/APISources";
     var URL_API_HEADERS = "https://testadminapi.webdatawarehouse.com/api/APIHeaders";
     var URL_API_PARAMETERS = "https://testadminapi.webdatawarehouse.com/api/APIParameters";
-    var URL_API_AUTH_TYPES = "https://testadminapi.webdatawarehouse.com/api/APITypes";
+    var URL_API_TYPES = "https://testadminapi.webdatawarehouse.com/api/APITypes";
+    var URL_AUTH_TYPES = "https://testadminapi.webdatawarehouse.com/api/AuthenticationTypes";
 
-    var g_api_auth_type = [];
-    var g_api_auth_LoopBasedOnINT_id = 1;
+    var g_api_type_select_data = [];
+    var g_api_LoopBasedOnINT_id = 0;
+    var g_auth_type = [];
 
     toastr.options = {
         "closeButton": true,
@@ -41,7 +43,7 @@
             '-webkit-border-radius': '10px', 
             '-moz-border-radius': '10px', 
             opacity: .5, 
-            color: '#fff' 
+            color: '#fff'
         } }); 
         
     }
@@ -125,6 +127,34 @@
         });
     }
 
+    function UpdateDataAPI(url, data, token, db, callback){
+        var _url = url + "?subscription=" + db;
+        var form = new FormData();
+        $.each(data, function(key, val){
+            form.append(key, val);
+        });
+        
+
+        var settings = {
+            "url": _url,
+            "method": "PUT",
+            "timeout": 0,
+            "headers": {
+            "Authorization": "Bearer " + token
+            },
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": form
+        };
+
+        $.ajax(settings).done(function (response) {
+            callback(response);
+        }).fail(function(response){
+            callback(response);
+        });;
+    }    
+
     function deleteDataAPI(url, token, db, callback){
         var _url = url + "?subscription=" + db;
         var settings = {
@@ -171,7 +201,7 @@
 
                 var api_method = '<div class="td-api-method">' + am["APIMethod"] + '</div>';
 
-                var api_type = '<div class="td-api-auth-type">' + am["APIType"] + '</div>';
+                var api_type = '<div class="td-api-type">' + am["APIType"] + '</div>';
 
                 var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
                 var loop_based_int_last = am["LoopBasedOnINTLast"];
@@ -185,10 +215,10 @@
 
                 var enabled = "";
                 if(am["Enabled"] == 1){
-                    enabled = '<input type="checkbox" class="enable-btn" checked>';
+                    enabled = '<input type="checkbox" class="enable-btn" disabled checked>';
                 }
                 else{
-                    enabled = '<input type="checkbox" class="enable-btn">';
+                    enabled = '<input type="checkbox" class="enable-btn" disabled>';
                 }
                 
                 var edit_delete = '<div class="method-edit-div">' + 
@@ -274,40 +304,40 @@
 
         block_ui();
 
-        $("#emm_api_source").destroySelect2();
-        $("#emm_api_source").select2({tags: false});
-
         getGetDataFromAPI(URL_API_SOURCES, token, db, function(response){
             var api_sources = response;
             var uniq_api_source_names = [];
 
-            $("#emm_api_source").destroySelect2();
+            $("#emm_api_source").html("").destroySelect2();
             for(var i=0; i<api_sources.length; i++){
                 if(uniq_api_source_names.indexOf(api_sources[i].APISource) == -1){
                     $("#emm_api_source").append("<option value='"+ api_sources[i].ID +"'>"+ api_sources[i].APISource +"</option>"); 
                     uniq_api_source_names.push(api_sources[i].APISource);
-                }
-                
+                }                
             }
+            
             $("#emm_api_source").select2({tags: false});
-            $("#emm_api_source").val(api_sources[0]);
+            $("#emm_api_source").val(api_sources[0].ID);
 
-            getGetDataFromAPI(URL_API_METHODS + "/" + 6, token, db, function(response){
+            var source_id = api_sources[0].ID;
+            var url = URL_API_SOURCES + "/" + source_id + "/APIMethods";
+            getGetDataFromAPI(url, token, db, function(response){
                 var api_methods = response;
-                $("#emm_api_method_name").destroySelect2();
+                $("#emm_api_method_name").html("").destroySelect2();
                 for(var i=0; i<api_methods.length; i++){
                     $("#emm_api_method_name").append("<option value='"+ api_methods[i].ID +"'>"+ api_methods[i].APIMethodName +"</option>");
                 }
                 $("#emm_api_method-name").select2({tags: true});
-                $("#edit_method_modal").modal("show");
                 unblock_ui();
-            });
+                $("#edit_method_modal").modal("show"); 
+            });                          
         });
     });
 
     $(document).on('click', "#maintable tbody>tr a", function(e){
-        var target1 = e.currentTarget;   
-        var target = $(e.currentTarget);            
+        
+        var target = $(e.currentTarget);     
+        var tr = $(e.currentTarget.closest("tr"));       
         var btn_class = $(e.currentTarget).attr("class");
             
         if(btn_class == "api-source-edit-btn"){            
@@ -319,36 +349,41 @@
             $(e.currentTarget.parentElement).css('display', 'none');
             $(e.currentTarget.parentElement.parentElement).find(".method-save-div").css("display", "block");
 
-            $(e.currentTarget.closest("tr")).find(".td-api-method").editable({
+            tr.find(".td-api-method").editable({
                 url: '',
                 type: 'textarea', 
                 mode: 'inline',
                 showbuttons: true, 
             });
 
-            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").editable({
+            tr.find(".td-api-type").editable({
                 url: '', 
                 type:'select',               
                 mode: 'inline',
                 showbuttons: false,                 
-                source: g_api_auth_type,
+                source: g_api_type_select_data,
             });  
 
-            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").on('save', function(e, params) 
+            tr.find(".td-api-type").on('save', function(e, params) 
             {
-                if(params.newValue == g_api_auth_LoopBasedOnINT_id){
-                    $(e.currentTarget.closest("tr")).find(".td-loop-start").editable("enable");
-                    $(e.currentTarget.closest("tr")).find(".td-loop-last").editable("enable");
+                if(params.newValue == g_api_LoopBasedOnINT_id){
+                    tr.find(".td-loop-start").removeClass("td-disable-content");
+                    tr.find(".td-loop-last").removeClass("td-disable-content");
+                    tr.find(".td-loop-start").editable("enable");
+                    tr.find(".td-loop-last").editable("enable");
                 }
                 else{
-                    $(e.currentTarget.closest("tr")).find(".td-loop-start").text("0");
-                    $(e.currentTarget.closest("tr")).find(".td-loop-start").editable("disable");
-                    $(e.currentTarget.closest("tr")).find(".td-loop-start").text("0");
-                    $(e.currentTarget.closest("tr")).find(".td-loop-last").editable("disable");
+                    tr.find(".td-loop-start").addClass("td-disable-content");
+                    tr.find(".td-loop-last").addClass("td-disable-content");
+
+                    tr.find(".td-loop-start").text("0");
+                    tr.find(".td-loop-last").text("0");
+                    tr.find(".td-loop-start").editable("disable");                    
+                    tr.find(".td-loop-last").editable("disable");
                 }
             });
 
-            $(e.currentTarget.closest("tr")).find(".td-loop-start").editable({
+            tr.find(".td-loop-start").editable({
                 url: '',
                 type: 'text', 
                 mode: 'inline',
@@ -360,7 +395,7 @@
                 } 
             });
 
-            $(e.currentTarget.closest("tr")).find(".td-loop-last").editable({
+            tr.find(".td-loop-last").editable({
                     url: '',
                     type: 'text', 
                     mode: 'inline',
@@ -372,38 +407,70 @@
                     } 
                 }); 
 
-            if($(e.currentTarget.closest("tr")).find(".td-api-auth-type").text() != "LoopBasedOnINT")
+            if(tr.find(".td-api-type").text() != "LoopBasedOnINT")
             {                
-                $(e.currentTarget.closest("tr")).find(".td-loop-start").editable('disable');
-                $(e.currentTarget.closest("tr")).find(".td-loop-last").editable('disable');
-            }            
+                tr.find(".td-loop-start").editable('disable');
+                tr.find(".td-loop-last").editable('disable');
+            }
+
+            tr.find(".enable-btn").prop("disabled", false);
+
         }
         else if(btn_class=="cancel-btn"){
-            var method_data = JSON.parse(decodeURIComponent($(e.currentTarget.closest("tr")["children"][1]["children"][0]).data("json")));
+            var method_data = JSON.parse(decodeURIComponent(tr.find(".api-method-edit-btn").data("json")));
 
-            $(e.currentTarget.closest("tr")["children"][1]["children"][0]).text(method_data["APIMethodName"]);
+            tr.find(".api-method-edit-btn").text(method_data["APIMethodName"]);
 
-            $(e.currentTarget.closest("tr")).find(".td-api-method").text(method_data["APIMethod"]);
-            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").text(method_data["APIType"]);
-            $(e.currentTarget.closest("tr")).find(".td-loop-start").text(method_data["LoopBasedOnINTStartFrom"]);
-            $(e.currentTarget.closest("tr")).find(".td-loop-last").text(method_data["LoopBasedOnINTLast"]);
+            tr.find(".td-api-method").text(method_data["APIMethod"]);
+            tr.find(".td-api-type").text(method_data["APIType"]);
+            tr.find(".td-loop-start").text(method_data["LoopBasedOnINTStartFrom"]);
+            tr.find(".td-loop-last").text(method_data["LoopBasedOnINTLast"]);
             if(method_data["Enabled"] == 1){
-                $(e.currentTarget.closest("tr")["children"][6]["children"][0]).prop('checked', true);
+                tr.find(".enable-btn").prop('checked', true);
             }
             else{
-                $(e.currentTarget.closest("tr")["children"][6]["children"][0]).prop('checked', false);
+                tr.find(".enable-btn").prop('checked', false);
             }
 
-            $(e.currentTarget.closest("tr")).find(".td-api-method").editable("destroy");
-            $(e.currentTarget.closest("tr")).find(".td-api-auth-type").editable("destroy");
-            $(e.currentTarget.closest("tr")).find(".td-loop-start").editable("destroy");
-            $(e.currentTarget.closest("tr")).find(".td-loop-last").editable("destroy");
+            tr.find(".enable-btn").prop("disabled", true);
+
+            tr.find(".td-api-method").editable("destroy");
+            tr.find(".td-api-type").editable("destroy");
+            tr.find(".td-loop-start").editable("destroy");
+            tr.find(".td-loop-last").editable("destroy");
             
             $("#api_method_name_select_div").css("display", "none");
 
 
             $(e.currentTarget.parentElement).css('display', 'none');
             $(e.currentTarget.parentElement.parentElement).find(".method-edit-div").css("display", "block");
+
+        }
+        else if(btn_class=="save-btn"){
+            console.log("sss");
+            var method_id = tr.find(".api-method-edit-btn").data("methodid");
+            var method_name = tr.find(".api-method-edit-btn").text();
+            var method = tr.find(".td-api-method").text();
+            var API_type = tr.find(".td-api-type").text();
+            var loop_start = tr.find(".td-loop-start").text();
+            var loop_last = tr.find(".td-loop-last").text();
+            var is_enable = 0;
+            if(tr.find(".enable-btn").prop('checked')) is_enable = 1;
+
+            var data = {
+                "APIMethodName": method_name,
+                "APIMethod": method,
+                "APIType": API_type,
+                "LoopBasedOnINTStartFrom": loop_start,
+                "LoopBasedOnINTLast": loop_last,
+                "Enabled": is_enable
+            };
+
+            var url = URL_API_METHODS + "/" + method_id;
+            UpdateDataAPI(url, data, token, db, function(response){
+                console.log(response);
+            });
+
 
         }
         else if(btn_class == "delete-btn"){
@@ -423,7 +490,7 @@
             }); 
         }
         else if(btn_class == "api-method-edit-btn"){
-            if($(e.currentTarget.closest("tr")).find(".method-edit-div").css("display") == "block"){
+            if(tr.find(".method-edit-div").css("display") == "block"){
                 return;
             }
             if(g_clicked_method_name_td != null){
@@ -472,7 +539,7 @@
             { width : '50px' },
         ],        
         "fnDrawCallback": function () {
-            $('#asm_auth_table tbody td:nth-child(1), td:nth-child(2)').editable({
+            $('#asm_auth_table>tbody>td:nth-child(1), #asm_auth_table>tbody>td:nth-child(2)').editable({
                url: '',
                type: 'text', 
                mode: 'inline',
@@ -569,26 +636,22 @@
     });
 
 
-
-
-
-
-
-
-
     //=========  Edit API Method modal
-    $("#emm_api_source").on('select2:select', function(e){
-        var emm_api_source_id = $("#emm_api_source").val();
+    $("#emm_api_source").on('change', function(e){
         block_ui();
-        getGetDataFromAPI(URL_API_METHODS + "/" + 6, token, db, function(response){
+
+        var selected_source_id = $(e.currentTarget).val();
+        var url = URL_API_SOURCES + "/" + selected_source_id + "/APIMethods";
+        getGetDataFromAPI(url, token, db, function(response){
             var api_methods = response;
-            $("#emm_api_method_name").destroySelect2();
+            $("#emm_api_method_name").html("").destroySelect2();
             for(var i=0; i<api_methods.length; i++){
                 $("#emm_api_method_name").append("<option value='"+ api_methods[i].ID +"'>"+ api_methods[i].APIMethodName +"</option>");
             }
             $("#emm_api_method-name").select2({tags: true});
+            
             unblock_ui();
-        });
+        });    
     });
 
     $(document).on('click', "#edit_method_modal a", function(e){
@@ -635,7 +698,11 @@
             }            
 
         }
-    });   
+    });  
+
+    $(document).on('click', "#emm_save_btn", function(e){
+
+    }); 
 
     //=========
     
@@ -664,7 +731,7 @@
         "scrollY": true,
         "dom": 't',          
         "fnDrawCallback": function () {
-            $('#epm_table tbody td:nth-child(2), td:nth-child(3)').editable({
+            $('#epm_table>tbody>td:nth-child(2), #epm_table>tbody>td:nth-child(3)').editable({
                url: '',
                type: 'text', 
                mode: 'inline',
@@ -685,7 +752,7 @@
         "scrollY": true,
         "dom": 't',        
         "fnDrawCallback": function () {
-            $('#ehm_table tbody td:nth-child(1), td:nth-child(2)').editable({
+            $('#ehm_table>tbody>td:nth-child(1), #ehm_table>tbody>td:nth-child(2)').editable({
                url: '',
                type: 'text', 
                mode: 'inline',
@@ -729,15 +796,52 @@
     });
 
     block_ui();
-    getGetDataFromAPI(URL_API_AUTH_TYPES, token, db, function(response){        
+    getGetDataFromAPI(URL_API_TYPES, token, db, function(response){        
         $.each(response, function(index, val){ 
-            var data = {value:val.id, text:val.LoadType};
-            g_api_auth_type.push(data);
+            var data = {value:val.id, text:val.LoadType, desc:val.LoadTypeDescription};
+            g_api_type_select_data.push(data);
             if(val.LoadType == "LoopBasedOnINT"){
-                g_api_auth_LoopBasedOnINT_id = val.id;
+                g_api_LoopBasedOnINT_id = val.id;
             }
         });
-        init_maintable();    
+
+        //init emm_api_load_type
+        $("#emm_api_load_type").html("");
+        for(var i=0; i<g_api_type_select_data.length; i++){
+            $("#emm_api_load_type").append("<option value='"+ g_api_type_select_data[i].value +"'>"+ g_api_type_select_data[i].text +"</option>");                
+        }
+        $("#emm_api_load_type_desc").attr('title', g_api_type_select_data[0].desc);     
+
+        $("#emm_api_load_type").on('change', function(e){
+            var type_id = $(e.currentTarget).val();
+            if($("#emm_api_load_type option:selected").text() == "LoopBasedOnINT"){
+                $("#loopbasedint_relevant_div").css("display", "block");
+                $("#emm_start_from").val("0");
+                $("#emm_last").val("0");
+            }
+            else{
+                $("#loopbasedint_relevant_div").css("display", "none");
+            }
+
+            $.each(g_api_type_select_data, function(index, val){
+                if(val.value == type_id){
+                    $("#emm_api_load_type_desc").attr('title', val.desc);        
+                }
+            })
+            
+        });
+
+        getGetDataFromAPI(URL_AUTH_TYPES, token, db, function(response){ 
+            $.each(response, function(index, val){ 
+                var data = {value:val.id, text:val.AuthenticationTypeDescription, auth_type: val.AuthenticationType};
+                g_auth_type.push(data);
+                if(val.LoadType == "LoopBasedOnINT"){
+                    g_api_LoopBasedOnINT_id = val.id;
+                }
+            });
+            init_maintable();    
+        })
+        
     });
     
 

@@ -129,7 +129,7 @@ table.dataTable tbody td {
 }
 
 .td-disable-content{
-	color: #ffffff;
+	color: #ffffff !important;
 }
 
 .method-edit-div{
@@ -153,4 +153,22 @@ table.dataTable tbody td {
 
 .toast-success {
     background-color: #51a351;
+}
+
+.blockOverlay{
+	z-index: 2000 !important;
+}
+
+.blockMsg{
+	z-index: 2050 !important;	
+}
+
+.modal-body textarea{
+	min-height: 100px;
+}
+
+.api-load-type-desc{
+	margin: auto 0;
+    padding-top: 10px;
+    padding-left: 0px;
 }

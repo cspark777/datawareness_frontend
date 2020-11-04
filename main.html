@@ -65,28 +65,32 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="emm_api_method">API Method</label>
-                                    <input type="text" class="form-control" id="emm_api_method">
+                                    <textarea class="form-control" id="emm_api_method">
+                                    </textarea>
                                 </div>
                             </div>                            
                         </div>
 
                         <div class="row mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="emm_api_load_type">API Load Type</label>
                                     <select class="form-control" id="emm_api_load_type">
                                     </select>
-                                </div>
+                                </div>                                
                             </div>  
-                            <div class="col-md-6">
+                            <div class="col-md-1 api-load-type-desc" id="emm_api_load_type_desc">
+                                <i class="icon-help-circle"> </i>
+                            </div>
+                            <div class="col-md-7">
                                 <div class="row" id="loopbasedint_relevant_div" style="display: none;">
-                                    <div class="col-md-6">
+                                    <div class="col-md-5" style="float: left;">
                                         <div class="form-group">
                                             <label for="emm_start_from">Int Start From</label>
                                             <input type="text" class="form-control" id="emm_start_from" value="0">
                                         </div>
                                     </div>  
-                                    <div class="col-md-6">
+                                    <div class="col-md-5" style="float: left;">
                                         <div class="form-group">
                                             <label for="emm_last">Int Last</label>
                                             <input type="text" class="form-control" id="emm_last" value="0">
@@ -109,7 +113,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-b">Add</button>
+                        <button type="button" class="btn btn-b" id="emm_save_btn">Add</button>
                     </div>
                 </div>
             </div>
@@ -365,7 +369,7 @@
     <script src='plugins/bootstrap-toastr/toastr.min.js'></script>
     
 
-    <script src='js/custom.js'></script>
+    <script src='js/main.js'></script>
 
     <script>
         /*
