@@ -17,8 +17,11 @@
 
     var g_api_type_select_data = [];
     var g_api_LoopBasedOnINT_id = 0;
-    var g_auth_type = [];
+    var g_auth_data_arr = [];
 
+    var g_current_auth_data = null;
+    var g_current_auth_data_id = null;
+    
     toastr.options = {
         "closeButton": true,
         "debug": false,
@@ -88,6 +91,15 @@
         return "";
     }
 
+    function getAuthID(curr_data){
+        for(var i=0; i<g_auth_data_arr.length; i++){
+            if(g_auth_data_arr[i].auth_type[0].authenticationType == curr_data.authenticationType)
+            {
+                return g_auth_data_arr[i].value;
+            }
+        }
+    }
+
     var origin = getOrigin();
     var token = getCookie("token");
     var db = getCookie("db");
@@ -95,6 +107,8 @@
     var g_clicked_method_name_td = null;
     var g_clicked_method_name_td_text = "";
     var is_changed_method_name_td = 0;
+
+    var g_clicked_main_table_tr = null;
 
     if(token == ""){
         //window.location.href = origin + "login.html";
@@ -151,7 +165,7 @@
         $.ajax(settings).done(function (response) {
             callback(response);
         }).fail(function(response){
-            callback(response);
+            callback("error");
         });;
     }    
 
@@ -167,9 +181,9 @@
         };
 
         $.ajax(settings).done(function (response) {
-            callback(response);
+            callback("success");
         }).fail(function(response){            
-            callback(response);            
+            callback("error");            
         });
     }
 
@@ -341,7 +355,8 @@
         var btn_class = $(e.currentTarget).attr("class");
             
         if(btn_class == "api-source-edit-btn"){            
-            var sourceid = target.data("sourceid");            
+            var sourceid = target.data("sourceid");   
+            g_clicked_main_table_tr = tr;         
             open_apisource_modal(sourceid);            
         }
         else if(btn_class == "edit-btn"){
@@ -469,6 +484,25 @@
             var url = URL_API_METHODS + "/" + method_id;
             UpdateDataAPI(url, data, token, db, function(response){
                 console.log(response);
+                if(response != "error"){//success
+                    var $toast = toastr["success"]("The Method is saved.", "Success");
+
+                    tr.find(".enable-btn").prop("disabled", true);
+
+                    tr.find(".td-api-method").editable("destroy");
+                    tr.find(".td-api-type").editable("destroy");
+                    tr.find(".td-loop-start").editable("destroy");
+                    tr.find(".td-loop-last").editable("destroy");
+                    
+                    $("#api_method_name_select_div").css("display", "none");
+
+
+                    tr.find(".method-save-div").css('display', 'none');
+                    tr.find(".method-edit-div").css("display", "block");
+                }
+                else{
+                    var $toast = toastr["error"]("Error is occurred.", "Error");
+                }
             });
 
 
@@ -479,7 +513,7 @@
                 if(result){
                     deleteDataAPI(URL_API_METHODS + "/" + method_id, token, db, function(response){
                         unblock_ui();
-                        if(response == 1){//success
+                        if(response == "success"){//success
                             var $toast = toastr["success"]("The Method is deleted.", "Success");
                         }
                         else{
@@ -533,13 +567,14 @@
         "scrollX": true,
         "scrollY": true,
         "dom": 't',    
+        bSort: false,        
         "columns": [            
             { width : '200px' },
             { width : '200px' },
             { width : '50px' },
         ],        
         "fnDrawCallback": function () {
-            $('#asm_auth_table>tbody>td:nth-child(1), #asm_auth_table>tbody>td:nth-child(2)').editable({
+            $('#asm_auth_table>tbody>tr>td:nth-child(1), #asm_auth_table>tbody>tr>td:nth-child(2)').editable({
                url: '',
                type: 'text', 
                mode: 'inline',
@@ -549,11 +584,14 @@
     });
 
     $("#add_api_auth_btn").on("click", function(a){        
-        asm_auth_table.row.add( ["", "", ""]).draw();
+        asm_auth_table.row.add( ["", "", '<a href="javascript:;" class="delete-btn"> <i class="fa fa-trash-alt"></i> </a>']).draw();
     });
 
     function open_apisource_modal(api_source_id){
         block_ui();
+
+        //init header dialog table
+        ehm_table.clear();
 
         if(api_source_id == ""){ //add source modal
             var left = document.body.clientWidth/2 - 150;
@@ -562,11 +600,15 @@
             $("#api_source_modal .modal-dialog").css("margin-top", "10px");
 
             $("#asm_apisource_id").val("");
+            $("#asm_source_name_div").css("display", "block");
+            $("#asm_source_name").val("");
+
             $("#asm_title").text("Add APISource");
             $("#asm_endpoint").val("");   
             $("#asm_outputxml").prop("checked", false);
             $("#asm_enabled").prop("checked", false);
             asm_auth_table.clear();  
+            ehm_table.clear();
 
             unblock_ui();      
             $("#api_source_modal").modal("show"); 
@@ -579,6 +621,7 @@
                 var as = response;
                 $("#asm_apisource_id").val(as["ID"]);
                 $("#asm_title").text("Edit " + as["APISource"]);
+                $("#asm_source_name_div").css("display", "none");
                 $("#asm_endpoint").val(as["APIEndpoint"]);
 
                 if(as["OutputIsXML"] == 0){
@@ -594,21 +637,46 @@
                 else{
                     $("#asm_enabled").prop("checked", true);
                 }
-                as["Authentication"] = as["Authentication"].replaceAll("\\", "");
+
+                if(as["Authentication"] != ""){
+                    as["Authentication"] = as["Authentication"].replaceAll("\\", "");    
+                }
+
                 var auth = JSON.parse(as["Authentication"]);
+                g_current_auth_data = auth[0];
+
+                g_current_auth_data_id = getAuthID(g_current_auth_data);
+                $("#asm_auth_type").val(g_current_auth_data_id);
+
+
                 asm_auth_table.clear();            
 
                 for (var k in auth[0]["credentials"]){
                     if (typeof auth[0]["credentials"][k] !== 'function') {
                         asm_auth_table.row.add([
                             k, auth[0]["credentials"][k], 
-                            '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                            '<a href="javascript:;" class="delete-btn"> <i class="fa fa-trash-alt"></i> </a>'
                             ]);         
                     }
                 }          
                 asm_auth_table.columns.adjust().draw();
-                unblock_ui();      
-                $("#api_source_modal").modal("show");
+
+                //get data for header modal
+                getGetDataFromAPI(URL_API_HEADERS, token, db, function(response){
+                    var ah = response;                        
+                    ehm_table.clear();
+                    for (var i=0; i<ah.length; i++){                
+                        if(ah[i]["APISourceID"] == api_source_id){
+                            $("#ehm_title").text("Edit " + ah[i]["APISource"] + " headers");
+                            ehm_table.row.add([
+                                ah[i]["Header"], ah[i]["Value"], 
+                                '<a href="javascript:;" class="delete-btn" data-headerid="' + ah[i]["ID"] + '"><i class="fa fa-trash-alt"></i></a>'
+                            ]);                         
+                        }                
+                    }                    
+                    unblock_ui();
+                    $("#api_source_modal").modal("show"); 
+                });                
             });
         }
         
@@ -621,19 +689,146 @@
     $(document).on('click', "#api_source_modal a", function(e){
         var target = $(e.currentTarget);            
         var btn_class = $(e.currentTarget).attr("class");
+        var tr = $(e.currentTarget.closest("tr"));
 
-        if(btn_class == "asm-edit-header-btn"){
-            var asm_apisource_id = $("#asm_apisource_id").val();
-            if(asm_apisource_id == ""){
-                //new
-                ehm_table.clear();
-                $("#edit_header_modal").modal("show");
-            }
-            else{
-                open_edit_header_modal("sampledata/apiheader.txt", token, db);    
-            }            
+        if(btn_class == "asm-edit-header-btn"){            
+            $("#edit_header_modal").modal("show");  
+        }
+        else if(btn_class == "delete-btn"){            
+            bootbox.confirm("Are you sure to delete this API Authentication Parameter?", function(result) {
+                if(result){
+                    var deleted_row = asm_auth_table.row(tr);
+                    asm_auth_table.row(deleted_row).remove().draw();
+                }
+            }); 
         }
     });
+
+    $("#asm_auth_type").on('change', function(e){
+        var selected_auth_id = $(e.currentTarget).val();
+        var auth_type_str = $("#asm_auth_type option:selected").data("type");
+        var auth_type = JSON.parse(decodeURIComponent(auth_type_str));
+
+        asm_auth_table.clear();
+        
+
+        for (var k in auth_type[0]["credentials"]){
+            if (typeof auth_type[0]["credentials"][k] !== 'function') {
+                asm_auth_table.row.add([
+                    k, auth_type[0]["credentials"][k], 
+                    '<a href="javascript:;" class="delete-btn"> <i class="fa fa-trash-alt"></i> </a>'
+                    ]);         
+            }
+        }  
+        asm_auth_table.draw();
+    });
+
+    $("#asm_save_btn").on("click", function(e){//save API source
+        //get edited data
+        var api_source_id = $("#asm_apisource_id").val();
+        var api_endpoint = $("#asm_endpoint").val();
+        var api_output_xml = 0;
+        if($("#asm_outputxml").prop("checked")) api_output_xml = 1;
+        var api_auth_type = $("#asm_auth_type option:selected").text();
+        
+        var auth_table_trs = $("#asm_auth_table>tbody").find("tr");
+
+        var auth_data = {"authenticationType": api_auth_type, "credentials":{}};
+
+        for(var i=0; i<auth_table_trs.length; i++){
+            var header_td = $(auth_table_trs[i]).find("td")[0];
+            var value_td = $(auth_table_trs[i]).find("td")[1];
+
+            var header = $(header_td).text();
+            var value = $(value_td).text();
+
+            if(header==""){
+                continue;
+            }
+            else{
+                auth_data["credentials"][header] = value;
+            }
+        }
+
+        var auth_data_arr = [];
+        auth_data_arr.push(auth_data);
+
+        var auth_data_str = JSON.stringify(auth_data_arr);
+
+        var api_enabled = 0;
+        if($("#asm_enabled").prop("checked")) api_enabled = 1;
+
+        var api_source_data = {            
+            "APIEndpoint": api_endpoint,
+            "OutputIsXML": api_output_xml,
+            "Authentication": auth_data_str,            
+            "Enabled": api_enabled
+        };
+
+
+        if(api_source_id == ""){ //add a new API Source
+
+        }
+        else{ //update the API source change
+            block_ui();
+            var url = URL_API_SOURCES + "/" + api_source_id;
+            UpdateDataAPI(url, api_source_data, token, db, function(response){
+                console.log(response);
+                if(response != "error"){
+                    var $toast = toastr["success"]("The API Source is saved.", "Success");
+                    $("#api_source_modal").modal("hide"); 
+                    unblock_ui();                    
+                }
+            })
+        }
+    });
+
+    //-------- edit header modal
+    var ehm_table = $('#ehm_table').DataTable({
+        "scrollX": true,
+        "scrollY": true,
+        "dom": 't',    
+        bSort: false,    
+        "fnDrawCallback": function () {
+            $('#ehm_table>tbody>tr>td:nth-child(1), #ehm_table>tbody>tr>td:nth-child(2)').editable({
+               url: '',
+               type: 'text', 
+               mode: 'inline',
+               showbuttons: false,
+            });
+        }            
+    });
+
+    $(document).on('click', "#edit_header_modal a", function(e){
+        var target = $(e.currentTarget);      
+        var tr = $(e.currentTarget.closest("tr"));
+        var btn_class = $(e.currentTarget).attr("class");            
+        if(btn_class == "delete-btn"){
+            var header_id = target.data("headerid");
+            bootbox.confirm("Are you sure to delete this API Header?", function(result) {
+                if(result){
+                    var deleted_row = ehm_table.row(tr);
+                    ehm_table.row(deleted_row).remove().draw();
+                }
+            }); 
+        }
+    });
+
+    $("#add_api_header_btn").on("click", function(a){        
+        ehm_table.row.add( ["", "", '<a href="javascript:;" class="delete-btn" data-headerid="0"><i class="fa fa-trash-alt"></i></a>'] ).draw();        
+    });
+
+    $('#edit_header_modal').on('shown.bs.modal', function(){        
+        ehm_table.columns.adjust().draw();
+    });
+
+    //----------
+    
+
+    
+
+    
+    
 
 
     //=========  Edit API Method modal
@@ -701,7 +896,11 @@
     });  
 
     $(document).on('click', "#emm_save_btn", function(e){
-
+        var api_source_id = $("#emm_api_source").val();
+        var api_source_name = $("#emm_api_source option:selected").text();
+        var api_method_name = $("#emm_api_method_name option:selected").text();
+        var api_method = $("#emm_api_method").val();
+        //var api_load_type =
     }); 
 
     //=========
@@ -729,9 +928,10 @@
     var epm_table = $('#epm_table').DataTable({
         "scrollX": true,
         "scrollY": true,
-        "dom": 't',          
+        "dom": 't',   
+        bSort: false,       
         "fnDrawCallback": function () {
-            $('#epm_table>tbody>td:nth-child(2), #epm_table>tbody>td:nth-child(3)').editable({
+            $('#epm_table>tbody>tr>td:nth-child(2), #epm_table>tbody>tr>td:nth-child(3)').editable({
                url: '',
                type: 'text', 
                mode: 'inline',
@@ -746,51 +946,7 @@
         epm_table.row.add( [api_method_name, "", "", ""] ).draw();
     });
 
-    //-------- edit header modal
-    var ehm_table = $('#ehm_table').DataTable({
-        "scrollX": true,
-        "scrollY": true,
-        "dom": 't',        
-        "fnDrawCallback": function () {
-            $('#ehm_table>tbody>td:nth-child(1), #ehm_table>tbody>td:nth-child(2)').editable({
-               url: '',
-               type: 'text', 
-               mode: 'inline',
-               showbuttons: false,
-            });
-        }            
-    });
-
-    function open_edit_header_modal(url, token, db){
-        getGetDataFromAPI(url, token, db, function(response){
-            var ah = JSON.parse(response);
-            $("#ehm_title").text("Edit " + ah[0]["APISource"] + " headers");
-            ehm_table.clear();
-            for (var i=0; i<ah.length; i++){                
-                ehm_table.row.add([
-                    ah[i]["Header"], ah[i]["Value"], 
-                    '<a href="javascript:;" class="delete-btn"> Delete </a>'
-                    ]);                         
-            }
-            ehm_table.columns.adjust().draw();
-            unblock_ui();
-            $("#edit_header_modal").modal("show");
-        });
-    }
-
-    $("#add_api_header_btn").on("click", function(a){        
-        ehm_table.row.add( ["", "", ""] ).draw();
-    });
-
-    //----------
     
-
-    
-
-    
-    $('#edit_header_modal').on('shown.bs.modal', function(){        
-        ehm_table.columns.adjust().draw();
-    });
     $('#edit_parameter_modal').on('shown.bs.modal', function(){        
         epm_table.columns.adjust().draw();
     });
@@ -832,13 +988,17 @@
         });
 
         getGetDataFromAPI(URL_AUTH_TYPES, token, db, function(response){ 
+            $("#asm_auth_type").html("");
+
             $.each(response, function(index, val){ 
-                var data = {value:val.id, text:val.AuthenticationTypeDescription, auth_type: val.AuthenticationType};
-                g_auth_type.push(data);
-                if(val.LoadType == "LoopBasedOnINT"){
-                    g_api_LoopBasedOnINT_id = val.id;
-                }
+                var auth_type = JSON.parse(val.AuthenticationType);
+                var data = {value:val.id, text:val.AuthenticationTypeDescription, auth_type: auth_type};
+                g_auth_data_arr.push(data);  
+
+                $("#asm_auth_type").append('<option value="'+ val.id +'" data-type="' + encodeURIComponent(val.AuthenticationType) + '">'+ val.AuthenticationTypeDescription +'</option>');              
             });
+
+
             init_maintable();    
         })
         
