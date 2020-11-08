@@ -36,14 +36,16 @@
             url: "https://testadminapi.webdatawarehouse.com/api/token",
             data: $form.serialize(),
             success: function( response ) {
-                console.log( response );
-                //here is to get subscription part
-                var subscription = "devWebdatawarehouse";
-                
                 setCookie("token", response["access"], 1);
-                setCookie("db", subscription);
 
+                //here is to get subscription part
+
+                /*
+                var subscription = "devWebdatawarehouse";                
+                setCookie("db", subscription);
                 window.location.href = origin + "main.html";
+                */
+                window.location.href = origin + "subscription.html";
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 if(thrownError == "Unauthorized"){

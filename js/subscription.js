@@ -1,30 +1,5 @@
 (function ($) {
     "use strict"
-    function getOrigin(){
-        var href = window.location.href;
-        var h_arr = href.split('/');
-        var origin = "";
-        for(var i=0; i<h_arr.length-1;i++){
-            origin = origin + h_arr[i] + "/";
-        }
-
-        return origin;
-    }
-
-    function getCookie(cname) {
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
 
     var token = getCookie("token");
     var origin = getOrigin();
@@ -37,12 +12,32 @@
         },
     };
 
+    block_ui();
     $.ajax(settings).done(function (response) { 
-    	if(responses.length == 1)
+    	console.log(response);
+        setCookie("subscriptions", response);
+        if(response.length == 1){
+            setCookie("db", response[0]);
+            window.location.href = origin + "main.html";
+            return;
+        }
+        for(var i=0; i<response.length; i++){
+            $('#subscription').append($('<option>', {
+                        value: response[i],
+                        text: response[i]
+                    }));    
+        }    
+        unblock_ui();   
         
     }).fail(function(response){
         alert("Get subscriptions is failed. Please login again.");
         window.location.href = origin + "login.html";
+    });
+
+    $("#select_subscription").on("click", function(e){
+        var subscription = $('#subscription').val();
+        setCookie("db", subscription);
+        window.location.href = origin + "main.html";
     });
 
 })(jQuery)

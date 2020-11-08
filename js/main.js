@@ -37,71 +37,9 @@
         "hideMethod": "fadeOut"
     }
 
-    function block_ui(){
-        
-        $.blockUI({ css: { 
-            border: 'none', 
-            padding: '15px', 
-            backgroundColor: '#000', 
-            '-webkit-border-radius': '10px', 
-            '-moz-border-radius': '10px', 
-            opacity: .5, 
-            color: '#fff'
-        } }); 
-        
-    }
-
-    function unblock_ui(){
-        $.unblockUI();
-    }
-
-    $.fn.destroySelect2 = function () {
-        $.each(this, function () {
-            try {
-                if (!(this).data('select2')) {
-                    $(this).select2('destroy');
-                }
-            } catch (e) {
-            }
-        });
-    };
-
-    function getOrigin(){
-        var href = window.location.href;
-        var h_arr = href.split('/');
-        var origin = "";
-        for(var i=0; i<h_arr.length-1;i++){
-            origin = origin + h_arr[i] + "/";
-        }
-        return origin;
-    }
-
-    function getCookie(cname) {
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    function getAuthID(curr_data){
-        for(var i=0; i<g_auth_data_arr.length; i++){
-            if(g_auth_data_arr[i].auth_type[0].authenticationType == curr_data.authenticationType)
-            {
-                return g_auth_data_arr[i].value;
-            }
-        }
-    }
-
     var origin = getOrigin();
     var token = getCookie("token");
+    var subscriptions = getCookie("subscriptions");
     var db = getCookie("db");
 
     var g_clicked_method_name_td = null;
@@ -110,82 +48,48 @@
 
     var g_clicked_main_table_tr = null;
 
+/*
     if(token == ""){
         //window.location.href = origin + "login.html";
         db = "devWebdatawarehouse";
     }
-
+*/
     // ===== init part
 
     $("#subscription_name").html("<h4>" + db + "</h4>");
+
+    var subscriptions_str = getCookie("subscriptions");
+    var subscriptions = subscriptions_str.split(",");
+    var str = "";
+    if(subscriptions.length == 1){
+        str = '<span class="subscription-span">' + db + '</span>';
+        
+    }
+    else{
+        var str = '<select id="subscription_select">';
+        for(var i=0; i<subscriptions.length;i++){
+            if(db == subscriptions[i]){
+                str = str + '<option value="' + subscriptions[i] + '" selected>' + subscriptions[i] + '</option>';    
+            }
+            else{
+                str = str + '<option value="' + subscriptions[i] + '">' + subscriptions[i] + '</option>';
+            }
+            
+        }
+        str = str + '</select>';
+    }
+
+    $("#subscription_div").html(str);
+
+    $("#subscription_select").on("change", function(e){
+        var subscription = $('#subscription_select').val();
+        setCookie("db", subscription);
+        window.location.reload();
+    });
+
     // =====
 
-    function getGetDataFromAPI(url, token, db, callback){
-        var _url = url + "?subscription=" + db;
-        var settings = {
-            "url": _url,
-            "method": "GET",
-            "timeout": 0,
-            "headers": {"Authorization": "Bearer " + token
-            },
-        };
-
-        $.ajax(settings).done(function (response) {            
-            callback(response);
-        }).fail(function(response){
-            //callback("[]");
-            //token is expired, go to login
-            //window.location.href = origin + "login.html";
-            //alert(response.statusText);
-            callback(response);            
-        });
-    }
-
-    function UpdateDataAPI(url, data, token, db, callback){
-        var _url = url + "?subscription=" + db;
-        var form = new FormData();
-        $.each(data, function(key, val){
-            form.append(key, val);
-        });
-        
-
-        var settings = {
-            "url": _url,
-            "method": "PUT",
-            "timeout": 0,
-            "headers": {
-            "Authorization": "Bearer " + token
-            },
-            "processData": false,
-            "mimeType": "multipart/form-data",
-            "contentType": false,
-            "data": form
-        };
-
-        $.ajax(settings).done(function (response) {
-            callback(response);
-        }).fail(function(response){
-            callback("error");
-        });;
-    }    
-
-    function deleteDataAPI(url, token, db, callback){
-        var _url = url + "?subscription=" + db;
-        var settings = {
-            "url": _url,
-            "method": "DELETE",
-            "timeout": 0,
-            "headers": {
-            "Authorization": "Bearer " + token
-            },
-        };
-
-        $.ajax(settings).done(function (response) {
-            callback("success");
-        }).fail(function(response){            
-            callback("error");            
-        });
-    }
+    
 
     /*
     $(window).on('resize', function () {
@@ -574,12 +478,14 @@
             { width : '50px' },
         ],        
         "fnDrawCallback": function () {
-            $('#asm_auth_table>tbody>tr>td:nth-child(1), #asm_auth_table>tbody>tr>td:nth-child(2)').editable({
-               url: '',
-               type: 'text', 
-               mode: 'inline',
-               showbuttons: false,               
-            });
+            if(this.DataTable().data().length>0){
+                $('#asm_auth_table>tbody>tr>td:nth-child(1), #asm_auth_table>tbody>tr>td:nth-child(2)').editable({
+                   url: '',
+                   type: 'text', 
+                   mode: 'inline',
+                   showbuttons: false,               
+                });    
+            }            
         }            
     });
 
@@ -622,6 +528,7 @@
                 $("#asm_apisource_id").val(as["ID"]);
                 $("#asm_title").text("Edit " + as["APISource"]);
                 $("#asm_source_name_div").css("display", "none");
+                $("#asm_source_name").val(as["APISource"]);
                 $("#asm_endpoint").val(as["APIEndpoint"]);
 
                 if(as["OutputIsXML"] == 0){
@@ -645,7 +552,7 @@
                 var auth = JSON.parse(as["Authentication"]);
                 g_current_auth_data = auth[0];
 
-                g_current_auth_data_id = getAuthID(g_current_auth_data);
+                g_current_auth_data_id = getAuthID(g_auth_data_arr, g_current_auth_data);
                 $("#asm_auth_type").val(g_current_auth_data_id);
 
 
@@ -658,28 +565,38 @@
                             '<a href="javascript:;" class="delete-btn"> <i class="fa fa-trash-alt"></i> </a>'
                             ]);         
                     }
-                }          
-                asm_auth_table.columns.adjust().draw();
+                } 
+
+                //asm_auth_table.columns.adjust().draw();
 
                 //get data for header modal
                 getGetDataFromAPI(URL_API_HEADERS, token, db, function(response){
-                    var ah = response;                        
+                    var ah = response;   
+                    var api_headers = [];
+                    $("#asm_apiheaders").val(api_headers_str);
+
                     ehm_table.clear();
                     for (var i=0; i<ah.length; i++){                
                         if(ah[i]["APISourceID"] == api_source_id){
+                            var data = {"ID": ah[i]["ID"], "Header": ah[i]["Header"], "Value": ah[i].Value};
+                            api_headers.push(data);
+
                             $("#ehm_title").text("Edit " + ah[i]["APISource"] + " headers");
                             ehm_table.row.add([
                                 ah[i]["Header"], ah[i]["Value"], 
                                 '<a href="javascript:;" class="delete-btn" data-headerid="' + ah[i]["ID"] + '"><i class="fa fa-trash-alt"></i></a>'
                             ]);                         
                         }                
-                    }                    
+                    }   
+
+                    var api_headers_str = JSON.stringify(api_headers);
+                    $("#asm_apiheaders").val(api_headers_str);
+
                     unblock_ui();
                     $("#api_source_modal").modal("show"); 
                 });                
             });
-        }
-        
+        }        
     }
 
     $('#api_source_modal').on('shown.bs.modal', function(){        
@@ -723,9 +640,54 @@
         asm_auth_table.draw();
     });
 
+
+    function process_headers(ori_headers, api_source_id, api_source_name){
+        var header_table_trs = $("#ehm_table>tbody").find("tr");
+
+        var new_headers = [];
+        var updated_headers = [];
+        
+        for(var i=0; i<header_table_trs.length; i++){
+            var header_td = $(header_table_trs[i]).find("td")[0];
+            var value_td = $(header_table_trs[i]).find("td")[1];
+            var delete_td = $(header_table_trs[i]).find("td")[2];
+
+            var header = $(header_td).text();
+            var value = $(value_td).text();
+            var header_id = $(delete_td).find("a").data("headerid");
+
+            var data = {"ID": header_id, "APISourceID": api_source_id, "APISource":api_source_name, "Header": header, "Value": value, "Enabled": 1};
+
+            if(header==""){
+                continue;
+            }
+            else{
+                if(header_id == "0"){
+                    new_headers.push(data);
+                }
+                else{
+                    for(var j=0; j<ori_headers.length; j++){
+                        if(ori_headers[j].ID == header_id){
+                            if((ori_headers[j].Header != header) || (ori_headers[j].Value!=value)){
+                                updated_headers.push(data);                                
+                            }
+                            ori_headers.splice(j, 1);
+                            break;
+                        }
+                    }
+                }                
+            }
+        }
+
+        var res_data = {"new_headers": new_headers, "updated_headers": updated_headers, "delete_headers": ori_headers};
+        return res_data;
+
+    }
+
     $("#asm_save_btn").on("click", function(e){//save API source
         //get edited data
         var api_source_id = $("#asm_apisource_id").val();
+        var api_source_name = $("#asm_source_name").val();
         var api_endpoint = $("#asm_endpoint").val();
         var api_output_xml = 0;
         if($("#asm_outputxml").prop("checked")) api_output_xml = 1;
@@ -742,7 +704,7 @@
             var header = $(header_td).text();
             var value = $(value_td).text();
 
-            if(header==""){
+            if((header==="")||(header === "No data available in table")){
                 continue;
             }
             else{
@@ -767,7 +729,26 @@
 
 
         if(api_source_id == ""){ //add a new API Source
+            
+            api_source_data["APISource"] = api_source_name;
 
+            AddDataApi(URL_API_SOURCES, api_source_data, token, db, function(response){
+                if(response != "error"){
+                    var api_source_id = 100;
+                    var headers = process_headers([], api_source_id, api_source_name);
+                    bulkAddAPI(URL_API_HEADERS, headers["new_headers"], token, db, function()
+                    {
+                        var data = {id: api_source_id, text: api_source_name};
+
+                        var newOption = new Option(data.text, data.id, false, false);
+                        $('#emm_api_source').append(newOption).trigger('change');
+
+                        var $toast = toastr["success"]("The API Source is saved.", "Success");
+                        $("#api_source_modal").modal("hide"); 
+                        unblock_ui();  
+                    }); 
+                }
+            });
         }
         else{ //update the API source change
             block_ui();
@@ -775,9 +756,22 @@
             UpdateDataAPI(url, api_source_data, token, db, function(response){
                 console.log(response);
                 if(response != "error"){
-                    var $toast = toastr["success"]("The API Source is saved.", "Success");
-                    $("#api_source_modal").modal("hide"); 
-                    unblock_ui();                    
+
+                    var ori_headers_str = $("#asm_apiheaders").val();
+                    var ori_headers = JSON.parse(ori_headers_str);
+                    var headers = process_headers(ori_headers, api_source_id, api_source_name);
+
+
+                    bulkAddAPI(URL_API_HEADERS, headers["new_headers"], token, db, function(){
+                        bulkUpdateAPI(URL_API_HEADERS, headers["updated_headers"], token, db, function(){
+                            bulkDeleteAPI(URL_API_HEADERS, headers["delete_headers"], token, db, function()
+                            {
+                                var $toast = toastr["success"]("The API Source is saved.", "Success");
+                                $("#api_source_modal").modal("hide"); 
+                                unblock_ui();  
+                            });
+                        });
+                    });                                      
                 }
             })
         }
@@ -790,12 +784,14 @@
         "dom": 't',    
         bSort: false,    
         "fnDrawCallback": function () {
-            $('#ehm_table>tbody>tr>td:nth-child(1), #ehm_table>tbody>tr>td:nth-child(2)').editable({
-               url: '',
-               type: 'text', 
-               mode: 'inline',
-               showbuttons: false,
-            });
+            if(this.DataTable().data().length > 0){
+                $('#ehm_table>tbody>tr>td:nth-child(1), #ehm_table>tbody>tr>td:nth-child(2)').editable({
+                   url: '',
+                   type: 'text', 
+                   mode: 'inline',
+                   showbuttons: false,
+                });
+            }            
         }            
     });
 
@@ -825,11 +821,6 @@
     //----------
     
 
-    
-
-    
-    
-
 
     //=========  Edit API Method modal
     $("#emm_api_source").on('change', function(e){
@@ -855,7 +846,7 @@
 
         var api_source_id = $("#emm_api_source_id").val();
         var api_method_id = $("#emm_api_method_id").val();
-        var api_method_name = $("#emm_api_method_name").val();
+        var api_method_name = $("#emm_api_method_name option:selected").text();
             
         if(btn_class == "emm-add-source-btn"){
             open_apisource_modal("");
@@ -884,23 +875,96 @@
             $("#epm_api_method_name").val(api_method_name);
 
             if(api_method_id == ""){
-                //new
-                epm_table.clear();
+                //new                
                 $("#edit_parameter_modal").modal("show");
             }
             else{
-                open_edit_parameter_modal("sampledata/apiheader.txt", token, db);    
+                //open_edit_parameter_modal("sampledata/apiheader.txt", token, db);    
             }            
 
         }
     });  
 
+    function process_parameters(ori_parameters, api_source_id, api_source_name, api_method_id, api_method_name){
+        var parameter_table_trs = $("#epm_table>tbody").find("tr");
+
+        var new_params = [];
+        var updated_params = [];
+        
+        for(var i=0; i<parameter_table_trs.length; i++){
+            var header_td = $(parameter_table_trs[i]).find("td")[1];
+            var value_td = $(parameter_table_trs[i]).find("td")[2];
+            var delete_td = $(parameter_table_trs[i]).find("td")[3];
+
+            var header = $(header_td).text();
+            var value = $(value_td).text();
+            var param_id = $(delete_td).find("a").data("parameterid");
+
+            var data = {"ID": param_id, "APISourceID": api_source_id, "APISource": api_source_name, "APIMethodID": api_method_id, "APIMethod": api_method_name, "Parameter": header, "DefaultValue": value, "Enabled": 1};
+
+            if(header==""){
+                continue;
+            }
+            else{
+                if(param_id == "0"){
+                    new_params.push(data);
+                }
+                else{
+                    for(var j=0; j<ori_parameters.length; j++){
+                        if(ori_parameters[j].ID == param_id){
+                            if((ori_parameters[j].Parameter != header) || (ori_parameters[j].DefaultValue!=value)){
+                                updated_params.push(data);                                
+                            }
+                            ori_parameters.splice(j, 1);
+                            break;
+                        }
+                    }
+                }                
+            }
+        }
+
+        var res_data = {"new_parameters": new_params, "updated_parameters": updated_params, "delete_parameters": ori_parameters};
+        return res_data;
+
+    }
     $(document).on('click', "#emm_save_btn", function(e){
         var api_source_id = $("#emm_api_source").val();
         var api_source_name = $("#emm_api_source option:selected").text();
         var api_method_name = $("#emm_api_method_name option:selected").text();
         var api_method = $("#emm_api_method").val();
-        //var api_load_type =
+        var api_load_type = $("#emm_api_load_type option:selected").text();
+        var api_start_from = $("#emm_start_from").val();
+        var api_last = $("#emm_last").val();
+
+        var api_method_enabled = 0;
+        if($("#emm_enabled").prop("checked")) api_method_enabled = 1;
+
+        var api_method_data = {
+            "APIMethodName": api_method_name,
+            "APIMethod": api_method,
+            "APIType": api_load_type,
+            "LoopBasedOnINTStartFrom": api_start_from,
+            "LoopBasedOnINTLast": api_last,
+            "Enabled" : api_method_enabled
+        };
+
+        //add new method
+
+        AddDataApi(URL_API_METHODS, api_method_data, token, db, function(response){
+            if(response != "error"){
+                var api_method_id = 100;
+                var params = process_headers([], api_source_id, api_source_name, api_method_id, api_method_name);
+                bulkAddAPI(URL_API_PARAMETERS, params["new_paramters"], token, db, function()
+                {
+                    //add datatable and refresh
+
+                    var $toast = toastr["success"]("The API Source is saved.", "Success");
+                    $("#api_source_modal").modal("hide"); 
+                    unblock_ui();  
+                }); 
+            }
+        });
+
     }); 
 
     //=========
@@ -916,10 +980,9 @@
             for (var i=0; i<ap.length; i++){                
                 epm_table.row.add([
                     ap[i]["APIMethod"], ap[i]["Parameter"], ap[i]["DefaultValue"], 
-                    '<a href="javascript:;" class="delete-btn"> Delete </a>'
+                    '<a href="javascript:;" class="delete-btn" data-parameterid="' + ap[i]["ID"] + '"><i class="fa fa-trash-alt"></a>'
                     ]);
-            }
-            epm_table.columns.adjust().draw();
+            }            
             unblock_ui();
             $("#edit_parameter_modal").modal("show");
         });   
@@ -931,21 +994,37 @@
         "dom": 't',   
         bSort: false,       
         "fnDrawCallback": function () {
-            $('#epm_table>tbody>tr>td:nth-child(2), #epm_table>tbody>tr>td:nth-child(3)').editable({
-               url: '',
-               type: 'text', 
-               mode: 'inline',
-               showbuttons: false,               
-            });
+            if(this.DataTable().data().length > 0){
+                $('#epm_table>tbody>tr>td:nth-child(2), #epm_table>tbody>tr>td:nth-child(3)').editable({
+                   url: '',
+                   type: 'text', 
+                   mode: 'inline',
+                   showbuttons: false,               
+                });
+            }            
         }
         
     });
 
     $("#add_api_parameter_btn").on("click", function(a){
         var api_method_name = $("#epm_api_method_name").val();
-        epm_table.row.add( [api_method_name, "", "", ""] ).draw();
+        epm_table.row.add( [api_method_name, "", "", '<a href="javascript:;" class="delete-btn" data-parameterid="0"><i class="fa fa-trash-alt"></a>'] ).draw();
     });
 
+    $(document).on('click', "#edit_parameter_modal a", function(e){
+        var target = $(e.currentTarget);            
+        var btn_class = $(e.currentTarget).attr("class");
+        var tr = $(e.currentTarget.closest("tr"));
+        if(target == "delete-btn"){
+            var parameter_id = target.data("parameterid");
+            bootbox.confirm("Are you sure to delete this API Parameter?", function(result) {
+                if(result){
+                    var deleted_row = epm_table.row(tr);
+                    epm_table.row(deleted_row).remove().draw();
+                }
+            }); 
+        }
+    });
     
     $('#edit_parameter_modal').on('shown.bs.modal', function(){        
         epm_table.columns.adjust().draw();
@@ -1003,8 +1082,5 @@
         })
         
     });
-    
-
-
 
 })(jQuery)

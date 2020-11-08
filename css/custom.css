@@ -172,3 +172,17 @@ table.dataTable tbody td {
     padding-top: 10px;
     padding-left: 0px;
 }
+
+.p-dropdown-content{
+	width: 300px !important;
+    text-align: left !important;
+    padding: 10px, 20px !important;
+}
+
+.p-dropdown-content li{
+	margin-top: 10px !important;
+}
+
+.p-dropdown-content ul{
+	margin-bottom: 0px !important;
+}

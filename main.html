@@ -130,6 +130,7 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="asm_apisource_id" value="">
+                        <input type="hidden" id="asm_apiheaders" value="">
                         <div class="row" id="asm_source_name_div">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -272,8 +273,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-b" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-b">Save Changes</button>
+                        <button type="button" class="btn btn-b" data-dismiss="modal">Close</button>
+                        <!--<button type="button" class="btn btn-b">Save Changes</button>-->
                     </div>
                 </div>
             </div>
@@ -321,7 +322,7 @@
                             <div class="p-dropdown-content">
                                 <ul>
                                     <li>Subscription</li>
-                                    <li></li>
+                                    <li><div id="subscription_div"></div></li>
                                     
                                     <li>
                                         <hr>
@@ -372,7 +373,7 @@
     <script src='plugins/bootbox/bootbox.min.js'></script>
     <script src='plugins/bootstrap-toastr/toastr.min.js'></script>
     
-
+    <script src='js/util.js'></script>
     <script src='js/main.js'></script>
 
     <script>
