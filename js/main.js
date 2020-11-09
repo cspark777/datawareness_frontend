@@ -100,6 +100,48 @@
     */
 
     //========= Main table ================
+    function add_new_row_maintable(row_data, row_data_str){
+        var api_source = '<a class="api-source-edit-btn" href="javascript:;" data-sourceid="' + row_data["APISourceID"] + '">' + row_data["APISource"] + '</a>';
+
+        var api_method_name = '<a class="api-method-edit-btn" href="javascript:;" data-json="' + row_data_str + '" data-methodid="' + row_data["ID"] + '">' + row_data["APIMethodName"] + '</a>';
+
+        var api_method = '<div class="td-api-method">' + row_data["APIMethod"] + '</div>';
+
+        var api_type = '<div class="td-api-type">' + row_data["APIType"] + '</div>';
+
+        var loop_based_int_start_from = row_data["LoopBasedOnINTStartFrom"];
+        var loop_based_int_last = row_data["LoopBasedOnINTLast"];
+
+        var loop_class = "";
+        if(row_data["APIType"] != "LoopBasedOnINT"){
+            loop_class = "td-disable-content";                    
+        }
+        loop_based_int_start_from = '<div class="td-loop-start ' + loop_class + '">' + loop_based_int_start_from + '</div>';
+        loop_based_int_last = '<div class="td-loop-last ' + loop_class + '">' + loop_based_int_last + '</div>';
+
+        var enabled = "";
+        if(row_data["Enabled"] == 1){
+            enabled = '<input type="checkbox" class="enable-btn" disabled checked>';
+        }
+        else{
+            enabled = '<input type="checkbox" class="enable-btn" disabled>';
+        }
+        
+        var edit_delete = '<div class="method-edit-div">' + 
+                    '<a href="javascript:;" class="edit-btn" title="Edit API Method" data-methodid="' + row_data["ID"] + '"><i class="fa fa-edit"></i></a>' +
+                    '<a href="javascript:;" class="delete-btn" title="Delete API Method"  data-methodid="' + row_data["ID"] + '"><i class="fa fa-trash-alt"></i></a></div>';
+
+        var save_cancel = '<div class="method-save-div" style="display:none;">' + 
+                    '<a href="javascript:;" class="save-btn" title="Save changed API Method"  data-methodid="' + row_data["ID"] + '"><i class="fa fa-save"></i></a>' + 
+                    '<a href="javascript:;" class="cancel-btn" title="Cancel API Method change" data-methodid="' + row_data["ID"] + '"><i class="fa fa-window-close"></i></a>' + '</div>';
+
+        
+
+        maintable.row.add([
+            api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, edit_delete + save_cancel
+            ]);
+
+    }
     function init_maintable(){        
         //getGetDataFromAPI("https://testadminapi.webdatawarehouse.com/api/APISources", token, db, function(response){
         //getGetDataFromAPI("sampledata/apimethods.txt", token, db, function(response){
@@ -113,45 +155,7 @@
 
                 var method_data_str = encodeURIComponent(JSON.stringify(am));
                 
-                var api_source = '<a class="api-source-edit-btn" href="javascript:;" data-sourceid="' + am["APISourceID"] + '">' + am["APISource"] + '</a>';
-
-                var api_method_name = '<a class="api-method-edit-btn" href="javascript:;" data-json="' + method_data_str + '" data-methodid="' + am["ID"] + '">' + am["APIMethodName"] + '</a>';
-
-                var api_method = '<div class="td-api-method">' + am["APIMethod"] + '</div>';
-
-                var api_type = '<div class="td-api-type">' + am["APIType"] + '</div>';
-
-                var loop_based_int_start_from = am["LoopBasedOnINTStartFrom"];
-                var loop_based_int_last = am["LoopBasedOnINTLast"];
-
-                var loop_class = "";
-                if(am["APIType"] != "LoopBasedOnINT"){
-                    loop_class = "td-disable-content";                    
-                }
-                loop_based_int_start_from = '<div class="td-loop-start ' + loop_class + '">' + loop_based_int_start_from + '</div>';
-                loop_based_int_last = '<div class="td-loop-last ' + loop_class + '">' + loop_based_int_last + '</div>';
-
-                var enabled = "";
-                if(am["Enabled"] == 1){
-                    enabled = '<input type="checkbox" class="enable-btn" disabled checked>';
-                }
-                else{
-                    enabled = '<input type="checkbox" class="enable-btn" disabled>';
-                }
-                
-                var edit_delete = '<div class="method-edit-div">' + 
-                            '<a href="javascript:;" class="edit-btn" title="Edit API Method" data-methodid="' + am["ID"] + '"><i class="fa fa-edit"></i></a>' +
-                            '<a href="javascript:;" class="delete-btn" title="Delete API Method"  data-methodid="' + am["ID"] + '"><i class="fa fa-trash-alt"></i></a></div>';
-
-                var save_cancel = '<div class="method-save-div" style="display:none;">' + 
-                            '<a href="javascript:;" class="save-btn" title="Save changed API Method"  data-methodid="' + am["ID"] + '"><i class="fa fa-save"></i></a>' + 
-                            '<a href="javascript:;" class="cancel-btn" title="Cancel API Method change" data-methodid="' + am["ID"] + '"><i class="fa fa-window-close"></i></a>' + '</div>';
-
-                
-
-                maintable.row.add([
-                    api_source, api_method_name, api_method, api_type, loop_based_int_start_from, loop_based_int_last, enabled, edit_delete + save_cancel
-                    ]);
+                add_new_row_maintable(am, method_data_str);
 
                 //
                 if(uniq_method_name.indexOf(am["APIMethodName"])==-1){
@@ -386,7 +390,9 @@
             };
 
             var url = URL_API_METHODS + "/" + method_id;
+            block_ui()
             UpdateDataAPI(url, data, token, db, function(response){
+                unblock_ui();
                 console.log(response);
                 if(response != "error"){//success
                     var $toast = toastr["success"]("The Method is saved.", "Success");
@@ -415,8 +421,11 @@
             var method_id = target.data("methodid");
             bootbox.confirm("Are you sure to delete the API Method?", function(result) {
                 if(result){
+                    block_ui();
                     deleteDataAPI(URL_API_METHODS + "/" + method_id, token, db, function(response){
                         unblock_ui();
+                        var deleted_row = maintable.row(tr);
+                        maintable.row(deleted_row).remove().draw();
                         if(response == "success"){//success
                             var $toast = toastr["success"]("The Method is deleted.", "Success");
                         }
@@ -685,6 +694,7 @@
     }
 
     $("#asm_save_btn").on("click", function(e){//save API source
+        
         //get edited data
         var api_source_id = $("#asm_apisource_id").val();
         var api_source_name = $("#asm_source_name").val();
@@ -731,10 +741,11 @@
         if(api_source_id == ""){ //add a new API Source
             
             api_source_data["APISource"] = api_source_name;
-
+            block_ui();
             AddDataApi(URL_API_SOURCES, api_source_data, token, db, function(response){
                 if(response != "error"){
-                    var api_source_id = 100;
+                    var res_obj = JSON.parse(response);
+                    var api_source_id = res_obj.ID;
                     var headers = process_headers([], api_source_id, api_source_name);
                     bulkAddAPI(URL_API_HEADERS, headers["new_headers"], token, db, function()
                     {
@@ -940,6 +951,8 @@
         if($("#emm_enabled").prop("checked")) api_method_enabled = 1;
 
         var api_method_data = {
+            "APISourceID": api_source_id,
+            "APISource": api_source_name,
             "APIMethodName": api_method_name,
             "APIMethod": api_method,
             "APIType": api_load_type,
@@ -949,17 +962,22 @@
         };
 
         //add new method
-
+        block_ui();
         AddDataApi(URL_API_METHODS, api_method_data, token, db, function(response){
             if(response != "error"){
-                var api_method_id = 100;
-                var params = process_headers([], api_source_id, api_source_name, api_method_id, api_method_name);
-                bulkAddAPI(URL_API_PARAMETERS, params["new_paramters"], token, db, function()
+                var res_obj = JSON.parse(response);
+                var api_method_id = res_obj.ID;
+                var params = process_parameters([], api_source_id, api_source_name, api_method_id, api_method_name);
+                bulkAddAPI(URL_API_PARAMETERS, params.new_parameters, token, db, function()
                 {
                     //add datatable and refresh
+                    
 
+                    var method_data_str = encodeURIComponent(JSON.stringify(res_obj));
+                    add_new_row_maintable(res_obj, method_data_str);
+                    maintable.draw();
                     var $toast = toastr["success"]("The API Source is saved.", "Success");
-                    $("#api_source_modal").modal("hide"); 
+                    $("#edit_method_modal").modal("hide"); 
                     unblock_ui();  
                 }); 
             }
